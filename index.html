@@ -41,7 +41,7 @@ const ICONS = [
     g: `<rect x="21" y="26" width="9" height="20" rx="3"/><rect x="24" y="17" width="4" height="10"/><path d="M34 24h12l-3 14h-6z"/><rect x="38" y="38" width="2" height="8"/><rect x="35" y="45" width="8" height="2"/>` },
   { key: "food", subs: ["restaurant", "fast_food", "food_court"],
     g: `<rect x="21" y="18" width="3" height="12"/><rect x="26" y="18" width="3" height="12"/><rect x="31" y="18" width="3" height="12"/><rect x="21" y="28" width="13" height="4" rx="2"/><rect x="26" y="30" width="3" height="16"/><path d="M42 18c-4 3-5 8-5 13h5v15h3V18z"/>` },
-  { key: "cafe", subs: ["cafe", "bakery", "ice_cream", "confectionery", "coffee"],
+  { key: "cafe", subs: ["cafe", "bakery", "ice_cream", "confectionery", "coffee", "pastry"],
     g: `<path d="M18 26h22v10a9 9 0 0 1-9 9h-4a9 9 0 0 1-9-9z"/><path d="M40 29h3a4 4 0 0 1 0 8h-3" fill="none" stroke="white" stroke-width="3"/><rect x="21" y="17" width="2.5" height="6"/><rect x="28" y="17" width="2.5" height="6"/><rect x="35" y="17" width="2.5" height="6"/>` },
   { key: "stable", subs: ["bicycle_rental", "bicycle"],
     g: `<g fill="none" stroke="white" stroke-width="3"><circle cx="23" cy="38" r="7"/><circle cx="41" cy="38" r="7"/><path d="M23 38l7-12h8l3 12M30 26l5 12"/></g>` },
@@ -51,9 +51,9 @@ const ICONS = [
     g: `<rect x="17" y="24" width="30" height="20" rx="4"/><rect x="25" y="20" width="10" height="6" rx="2"/><circle cx="32" cy="34" r="6" fill="BG"/><circle cx="32" cy="34" r="3"/>` },
   { key: "stagecoach", subs: ["bus_station"],
     g: `<rect x="19" y="18" width="26" height="24" rx="5"/><rect x="23" y="22" width="18" height="8" fill="BG"/><circle cx="25" cy="36" r="2" fill="BG"/><circle cx="39" cy="36" r="2" fill="BG"/><rect x="22" y="42" width="4" height="4"/><rect x="38" y="42" width="4" height="4"/>` },
-  { key: "tailor", subs: ["clothes", "tailor", "boutique"],
+  { key: "tailor", subs: ["clothes", "tailor", "boutique", "shoes", "fashion_accessories"],
     g: `<path d="M24 18l-9 7 4 6 5-3v19h16V28l5 3 4-6-9-7c-1 3-4 5-8 5s-7-2-8-5z"/>` },
-  { key: "doctor", subs: ["doctors", "doctor", "clinic", "hospital", "dentist", "pharmacy", "chemist"],
+  { key: "doctor", subs: ["doctors", "doctor", "clinic", "hospital", "dentist", "pharmacy", "chemist", "optician"],
     g: `<g fill="none" stroke="white" stroke-width="3"><path d="M22 18v10a8 8 0 0 0 16 0V18"/><path d="M30 36v4a7 7 0 0 0 14 0v-5"/></g><circle cx="44" cy="31" r="4"/>` },
   { key: "hotel", subs: ["hotel", "motel", "hostel", "guest_house", "bed_and_breakfast"],
     g: `<rect x="16" y="22" width="4" height="22"/><rect x="16" y="36" width="32" height="5"/><rect x="22" y="29" width="26" height="7" rx="2"/><circle cx="26" cy="25" r="3.5"/>` },
@@ -67,13 +67,23 @@ const ICONS = [
     g: `<rect x="17" y="22" width="30" height="20" rx="2"/><path d="M17 24l15 11 15-11" fill="none" stroke="BG" stroke-width="3"/>` },
   { key: "theater", subs: ["theatre", "cinema", "arts_centre"],
     g: `<path d="M17 20h16v12a8 8 0 0 1-16 0z"/><path d="M31 28h16v12a8 8 0 0 1-16 0z" stroke="BG" stroke-width="2"/><circle cx="22" cy="26" r="1.8" fill="BG"/><circle cx="28" cy="26" r="1.8" fill="BG"/><circle cx="36" cy="34" r="1.8" fill="BG"/><circle cx="42" cy="34" r="1.8" fill="BG"/>` },
-  { key: "general", subs: ["supermarket", "convenience", "general", "department_store", "greengrocer", "marketplace", "mall"],
+  { key: "general", subs: ["supermarket", "convenience", "general", "department_store", "greengrocer", "marketplace", "mall", "variety_store"],
     g: `<path d="M19 28h26l-3 17H22z"/><path d="M25 28a7 9 0 0 1 14 0" fill="none" stroke="white" stroke-width="3"/>` },
   { key: "butcher", subs: ["butcher"],
     g: `<rect x="16" y="26" width="25" height="12" rx="4"/><rect x="37" y="21" width="10" height="11" rx="3"/><rect x="19" y="36" width="3" height="10"/><rect x="34" y="36" width="3" height="10"/><rect x="38" y="18" width="2" height="4"/><rect x="44" y="18" width="2" height="4"/>` },
   { key: "trapper", subs: ["fabric", "sewing", "outdoor"],
     g: `<ellipse cx="32" cy="39" rx="9" ry="7"/><circle cx="21" cy="30" r="3.5"/><circle cx="28" cy="23" r="3.5"/><circle cx="36" cy="23" r="3.5"/><circle cx="43" cy="30" r="3.5"/>` }
 ];
+
+// Look up an icon from OpenStreetMap tags. Anything unrecognized gets the general store icon.
+const SUB2KEY = {};
+ICONS.forEach(i => i.subs.forEach(s => { SUB2KEY[s] = i.key; }));
+function iconFor(tags) {
+  for (const k of [tags.shop, tags.amenity, tags.tourism, tags.craft]) {
+    if (k && SUB2KEY[k]) return SUB2KEY[k];
+  }
+  return "general";
+}
 
 function iconUri(i) {
   const bg = i.dim ? "#bdbdbd" : "#000000";
@@ -102,23 +112,19 @@ function loadIcons() {
   })));
 }
 
-const ALL_SUBS = ICONS.flatMap(i => i.subs);
-const ICON_MATCH = ["match", ["get", "subclass"]];
-ICONS.forEach(i => ICON_MATCH.push(i.subs, i.key));
-ICON_MATCH.push(["match", ["get", "class"], ["restaurant", "fast_food"], "food", ["cafe", "bakery", "ice_cream"], "cafe", "general"]);
+// ---------- Places data (filled in from OpenStreetMap as you move around) ----------
+let POI_FC = { type: "FeatureCollection", features: [] };
+let poiStatus = "";
 
 function poiLayer(t, textColor, haloColor) {
   return {
-    id: "poi", type: "symbol", source: "omt", "source-layer": "poi", minzoom: 14,
-    filter: ["any",
-      ["in", ["get", "subclass"], ["literal", ALL_SUBS]],
-      ["in", ["get", "class"], ["literal", ["shop", "grocery", "restaurant", "fast_food", "cafe", "bakery", "ice_cream"]]]
-    ],
+    id: "poi", type: "symbol", source: "pois",
     layout: {
-      "icon-image": ICON_MATCH, "icon-size": 0.55, "icon-padding": 4, "icon-allow-overlap": false,
-      "symbol-sort-key": ["coalesce", ["get", "rank"], 99],
-      "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11,
-      "text-anchor": "top", "text-offset": [0, 1.2], "text-optional": true, "text-max-width": 7
+      "icon-image": ["get", "icon"], "icon-size": 0.45, "icon-padding": 1,
+      // Names only show once you're zoomed in close, so more icons fit at first
+      "text-field": ["step", ["zoom"], "", 16, ["get", "name"]],
+      "text-font": [t.font], "text-size": 11,
+      "text-anchor": "top", "text-offset": [0, 1.1], "text-optional": true, "text-max-width": 7
     },
     paint: { "text-color": textColor, "text-halo-color": haloColor, "text-halo-width": 1.3 }
   };
@@ -147,3 +153,237 @@ const THEMES = {
     label: "Minecraft-ish",
     land: "#7a5a3a", park: "#5da130", green: "#5da130", water: "#2f56d6",
     building: "#8b8b8b", roadCase: "#4a4a4a", road: "#b0a487",
+    major: "#d9cfa8", text: "#ffffff", halo: "#000000", font: "Noto Sans Bold",
+    fx: "none"
+  }
+};
+
+const sources = () => ({
+  omt: { type: "vector", url: "https://tiles.openfreemap.org/planet" },
+  pois: { type: "geojson", data: POI_FC }
+});
+const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
+const wz = (a, b) => ["interpolate", ["exponential", 1.5], ["zoom"], 8, a, 14, b, 20, b * 6];
+
+function makeStyle(t) {
+  if (t.kind === "rdr2") return makeRdr2Style(t);
+  const classes = ["in", "class", "motorway", "trunk", "primary", "secondary", "tertiary", "minor", "service"];
+  return {
+    version: 8, glyphs: GLYPHS, sources: sources(),
+    layers: [
+      { id: "bg", type: "background", paint: { "background-color": t.land } },
+      { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
+        filter: ["in", "class", "grass", "wood", "farmland"], paint: { "fill-color": t.green } },
+      { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
+      { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
+      { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
+        paint: { "line-color": t.water, "line-width": wz(0.5, 2) } },
+      { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
+        paint: { "fill-color": t.building } },
+      { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
+        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": t.roadCase, "line-width": wz(1.2, 4) } },
+      { id: "road", type: "line", source: "omt", "source-layer": "transportation",
+        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": ["match", ["get", "class"], ["motorway", "trunk", "primary"], t.major, t.road],
+          "line-width": wz(0.7, 3)
+        } },
+      { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 13,
+        layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11 },
+        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 1.5 } },
+      poiLayer(t, t.text, t.halo),
+      { id: "place", type: "symbol", source: "omt", "source-layer": "place",
+        filter: ["in", "class", "city", "town", "village", "suburb"],
+        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-size": 14, "text-transform": "uppercase" },
+        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 2 } }
+    ]
+  };
+}
+
+function makeRdr2Style(t) {
+  const L = "transportation";
+  const round = { "line-cap": "round", "line-join": "round" };
+  const major = ["in", "class", "motorway", "trunk", "primary"];
+  const mid = ["in", "class", "secondary", "tertiary"];
+  const minor = ["in", "class", "minor", "service"];
+  const ring = (id, off, op) => ({
+    id, type: "line", source: "omt", "source-layer": "water",
+    paint: { "line-color": t.waterRing, "line-width": 1, "line-offset": off, "line-opacity": op }
+  });
+  return {
+    version: 8, glyphs: GLYPHS, sources: sources(),
+    layers: [
+      { id: "bg", type: "background", paint: { "background-color": t.land } },
+      { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
+        filter: ["in", "class", "grass", "wood", "farmland"], paint: { "fill-color": t.green } },
+      { id: "marsh", type: "fill", source: "omt", "source-layer": "landcover",
+        filter: ["==", "class", "wetland"], paint: { "fill-color": t.marsh } },
+      { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
+      { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
+      ring("ring3", 19, 0.3), ring("ring2", 11, 0.45), ring("ring1", 5, 0.6),
+      { id: "water-edge", type: "line", source: "omt", "source-layer": "water",
+        paint: { "line-color": t.waterEdge, "line-width": 1.4 } },
+      { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
+        paint: { "line-color": t.waterEdge, "line-width": wz(0.6, 2) } },
+      { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 13,
+        paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge } },
+      { id: "rail", type: "line", source: "omt", "source-layer": L, filter: ["==", "class", "rail"],
+        paint: { "line-color": t.ink, "line-width": wz(1.2, 3.5) } },
+      { id: "rail-ties", type: "line", source: "omt", "source-layer": L, filter: ["==", "class", "rail"],
+        paint: { "line-color": t.land, "line-width": wz(0.6, 1.6), "line-dasharray": [1.5, 2.5] } },
+      { id: "case-minor", type: "line", source: "omt", "source-layer": L, filter: minor, layout: round,
+        paint: { "line-color": t.ink, "line-width": wz(0.8, 2.2) } },
+      { id: "case-mid", type: "line", source: "omt", "source-layer": L, filter: mid, layout: round,
+        paint: { "line-color": t.ink, "line-width": wz(1.2, 4.5) } },
+      { id: "case-major", type: "line", source: "omt", "source-layer": L, filter: major, layout: round,
+        paint: { "line-color": t.ink, "line-width": wz(1.8, 6.5) } },
+      { id: "inner-mid", type: "line", source: "omt", "source-layer": L, filter: mid, minzoom: 13, layout: round,
+        paint: { "line-color": t.land, "line-width": wz(0.3, 1.6) } },
+      { id: "inner-major", type: "line", source: "omt", "source-layer": L, filter: major, minzoom: 12, layout: round,
+        paint: { "line-color": t.land, "line-width": wz(0.4, 2.4) } },
+      { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 14,
+        layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11,
+                  "text-letter-spacing": 0.1 },
+        paint: { "text-color": t.ink, "text-halo-color": t.land, "text-halo-width": 1.5 } },
+      { id: "water-name", type: "symbol", source: "omt", "source-layer": "water_name",
+        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-transform": "uppercase",
+                  "text-letter-spacing": 0.5, "text-max-width": 6,
+                  "text-size": ["interpolate", ["linear"], ["zoom"], 8, 14, 14, 30] },
+        paint: { "text-color": t.waterText } },
+      poiLayer(t, t.ink, t.land),
+      { id: "place", type: "symbol", source: "omt", "source-layer": "place",
+        filter: ["in", "class", "city", "town", "village", "suburb"],
+        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-transform": "uppercase",
+                  "text-letter-spacing": 0.15, "text-max-width": 8,
+                  "text-size": ["interpolate", ["linear"], ["zoom"], 6, 12, 12, 24, 16, 38] },
+        paint: { "text-color": t.ink, "text-halo-width": 0 } }
+    ]
+  };
+}
+
+// ---------- App ----------
+loadIcons().then(() => {
+  const map = new maplibregl.Map({
+    container: "map",
+    style: makeStyle(THEMES.rdr2),
+    center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
+    zoom: 15.5
+  });
+
+  // Hand each icon to the map the moment a style asks for it
+  map.on("styleimagemissing", e => {
+    const d = iconData[e.id];
+    if (d && !map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: 2 });
+  });
+
+  map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
+  const geo = new maplibregl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: true },
+    trackUserLocation: true, showUserHeading: true
+  });
+  map.addControl(geo, "top-right");
+  map.on("load", () => geo.trigger());
+
+  // Badge: zoom level, status, and how many places are on screen
+  const badge = document.getElementById("badge");
+  function updateBadge() {
+    const z = map.getZoom();
+    let n = 0;
+    try { if (map.getLayer("poi")) n = map.queryRenderedFeatures({ layers: ["poi"] }).length; } catch (e) {}
+    if (z < 15) badge.textContent = "zoom " + z.toFixed(1) + " (zoom in to 15+ for places)";
+    else badge.textContent = "zoom " + z.toFixed(1) + " | " + (poiStatus || ("places: " + n));
+  }
+  map.on("idle", updateBadge);
+  map.on("zoomend", updateBadge);
+
+  // Fetch every named shop, restaurant, etc. in view straight from OpenStreetMap
+  const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+  const AMENITIES = "restaurant|fast_food|cafe|bar|pub|biergarten|food_court|ice_cream|pharmacy|doctors|clinic|hospital|dentist|bank|post_office|theatre|cinema|arts_centre|fuel|bicycle_rental|bus_station|marketplace|nightclub|library";
+  let fetched = null, poiAbort = null;
+
+  async function loadPlaces() {
+    if (map.getZoom() < 15) return;
+    const b = map.getBounds();
+    if (fetched && b.getWest() >= fetched.w && b.getEast() <= fetched.e &&
+        b.getSouth() >= fetched.s && b.getNorth() <= fetched.n) return;
+    const padX = (b.getEast() - b.getWest()) * 0.3, padY = (b.getNorth() - b.getSouth()) * 0.3;
+    const w = b.getWest() - padX, e = b.getEast() + padX, s = b.getSouth() - padY, n = b.getNorth() + padY;
+    const bbox = s + "," + w + "," + n + "," + e;
+    const q = '[out:json][timeout:25];(' +
+      'nwr["shop"]["name"](' + bbox + ');' +
+      'nwr["amenity"~"^(' + AMENITIES + ')$"]["name"](' + bbox + ');' +
+      'nwr["tourism"~"^(hotel|motel|hostel|guest_house|aquarium|information)$"]["name"](' + bbox + ');' +
+      ');out center 1500;';
+    if (poiAbort) poiAbort.abort();
+    poiAbort = new AbortController();
+    poiStatus = "loading places...";
+    updateBadge();
+    for (const url of OVERPASS) {
+      try {
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "data=" + encodeURIComponent(q),
+          signal: poiAbort.signal
+        });
+        if (!r.ok) throw new Error("http " + r.status);
+        const j = await r.json();
+        const feats = [];
+        (j.elements || []).forEach(el => {
+          const lon = el.lon != null ? el.lon : (el.center && el.center.lon);
+          const lat = el.lat != null ? el.lat : (el.center && el.center.lat);
+          const tags = el.tags || {};
+          if (lat == null || lon == null || !tags.name) return;
+          feats.push({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [lon, lat] },
+            properties: { name: tags.name, icon: iconFor(tags), kind: tags.shop || tags.amenity || tags.tourism || "" }
+          });
+        });
+        POI_FC = { type: "FeatureCollection", features: feats };
+        const src = map.getSource("pois");
+        if (src) src.setData(POI_FC);
+        fetched = { w: w, e: e, s: s, n: n };
+        poiStatus = "";
+        updateBadge();
+        return;
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        poiStatus = "places error: " + err.message;
+      }
+    }
+    updateBadge();
+  }
+  map.on("load", loadPlaces);
+  map.on("moveend", loadPlaces);
+
+  // Tap a place icon to see its name
+  map.on("click", "poi", e => {
+    const f = e.features && e.features[0];
+    if (!f) return;
+    const p = f.properties;
+    new maplibregl.Popup({ closeButton: false })
+      .setLngLat(f.geometry.coordinates)
+      .setText(p.name + (p.kind ? " (" + p.kind.replace(/_/g, " ") + ")" : ""))
+      .addTo(map);
+  });
+
+  const bar = document.getElementById("themes");
+  const fx = document.getElementById("fx");
+  function setTheme(key) {
+    map.setStyle(makeStyle(THEMES[key]));
+    fx.style.background = THEMES[key].fx;
+    [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
+  }
+  Object.entries(THEMES).forEach(([k, t]) => {
+    const b = document.createElement("button");
+    b.textContent = t.label; b.dataset.k = k;
+    b.onclick = () => setTheme(k);
+    bar.appendChild(b);
+  });
+  setTheme("rdr2");
+});
+</script>
+</body>
+</html>
