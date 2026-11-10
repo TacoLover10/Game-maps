@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Game Map</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; }
+  #map { position: absolute; inset: 0; }
+  #fx { position: absolute; inset: 0; pointer-events: none; }
+  #themes {
+    position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px);
+    display: flex; gap: 8px; justify-content: center; padding: 12px; z-index: 5;
+  }
+  #themes button {
+    font: 600 14px -apple-system, sans-serif; padding: 10px 16px; border-radius: 20px;
+    border: 2px solid #fff; background: rgba(0,0,0,.65); color: #fff;
+  }
+  #themes button.on { background: #fff; color: #000; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="fx"></div>
+<div id="themes"></div>
+
+<script>
+// Each theme is just a palette + a few style options. Add your own below.
+const THEMES = {
+  gta: {
+    label: "GTA V",
+    land: "#c9c3b4", park: "#8fb26b", green: "#9bbd78", water: "#6e9bc4",
+    building: "#b3ad9f", roadCase: "#6b6b6b", road: "#f2f2f2",
+    major: "#ffffff", text: "#ffffff", halo: "#2b2b2b", font: "Noto Sans Bold",
+    fx: "none"
+  },
+  rdr2: {
+    label: "RDR2",
+    land: "#d9c49a", park: "#b9ad7a", green: "#c3b27f", water: "#9fb0a0",
+    building: "#c4aa7e", roadCase: "#8a6a3d", road: "#a98657",
+    major: "#8f6a3a", text: "#4a3720", halo: "#e7d6b0", font: "Noto Sans Bold",
+    fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(60,35,10,.55) 100%)," +
+        "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .1  0 0 0 .35 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>\")"
+  },
+  mc: {
+    label: "Minecraft-ish",
+    land: "#7a5a3a", park: "#5da130", green: "#5da130", water: "#2f56d6",
+    building: "#8b8b8b", roadCase: "#4a4a4a", road: "#b0a487",
+    major: "#d9cfa8", text: "#ffffff", halo: "#000000", font: "Noto Sans Bold",
+    fx: "none"
+  }
+};
+
+function makeStyle(t) {
+  const w = (a, b) => ["interpolate", ["exponential", 1.5], ["zoom"], 8, a, 14, b, 20, b * 6];
+  const classes = ["in", "class", "motorway", "trunk", "primary", "secondary", "tertiary", "minor", "service"];
+  return {
+    version: 8,
+    glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+    sources: { omt: { type: "vector", url: "https://tiles.openfreemap.org/planet" } },
+    layers: [
+      { id: "bg", type: "background", paint: { "background-color": t.land } },
+      { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
+        filter: ["in", "class", "grass", "wood", "farmland"], paint: { "fill-color": t.green } },
+      { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
+      { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
+      { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
+        paint: { "line-color": t.water, "line-width": w(0.5, 2) } },
+      { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
+        paint: { "fill-color": t.building } },
+      { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
+        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": t.roadCase, "line-width": w(1.2, 4) } },
+      { id: "road", type: "line", source: "omt", "source-layer": "transportation",
+        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": ["match", ["get", "class"], ["motorway", "trunk", "primary"], t.major, t.road],
+          "line-width": w(0.7, 3)
+        } },
+      { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 13,
+        layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11 },
+        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 1.5 } },
+      { id: "place", type: "symbol", source: "omt", "source-layer": "place",
+        filter: ["in", "class", "city", "town", "village", "suburb"],
+        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-size": 14, "text-transform": "uppercase" },
+        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 2 } }
+    ]
+  };
+}
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: makeStyle(THEMES.gta),
+  center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
+  zoom: 13
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
+const geo = new maplibregl.GeolocateControl({
+  positionOptions: { enableHighAccuracy: true },
+  trackUserLocation: true, showUserHeading: true
+});
+map.addControl(geo, "top-right");
+map.on("load", () => geo.trigger());
+
+const bar = document.getElementById("themes");
+const fx = document.getElementById("fx");
+function setTheme(key) {
+  map.setStyle(makeStyle(THEMES[key]));
+  fx.style.background = THEMES[key].fx;
+  [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
+}
+Object.entries(THEMES).forEach(([k, t]) => {
+  const b = document.createElement("button");
+  b.textContent = t.label; b.dataset.k = k;
+  b.onclick = () => setTheme(k);
+  bar.appendChild(b);
+});
+setTheme("gta");
+</script>
+</body>
+</html>
