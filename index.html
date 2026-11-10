@@ -11,6 +11,13 @@
   html, body { margin: 0; height: 100%; background: #000; }
   #map { position: absolute; inset: 0; }
   #fx { position: absolute; inset: 0; pointer-events: none; }
+  #grid { position: absolute; inset: 0; pointer-events: none; display: none; }
+  #grid span {
+    position: absolute; font: 700 13px -apple-system, sans-serif; color: #fff;
+    text-shadow: 0 0 3px #000, 0 0 3px #000;
+  }
+  #grid .gt { top: calc(env(safe-area-inset-top, 0px) + 36px); transform: translateX(-50%); }
+  #grid .gl { left: 6px; transform: translateY(-50%); }
   #themes {
     position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px);
     display: flex; gap: 8px; justify-content: center; padding: 12px; z-index: 5;
@@ -30,6 +37,7 @@
 <body>
 <div id="map"></div>
 <div id="fx"></div>
+<div id="grid"></div>
 <div id="badge">loading...</div>
 <div id="themes"></div>
 
@@ -37,7 +45,7 @@
 window.addEventListener("error", e => { document.getElementById("badge").textContent = "JS error: " + e.message; });
 
 // ---------- Place icons ----------
-// subs = OpenStreetMap place types that get this icon. dim = grayed out like the game.
+// subs = OpenStreetMap place types that get this icon. dim = grayed out in the RDR2 set.
 const ICONS = [
   { key: "saloon", subs: ["bar", "pub", "biergarten", "nightclub"],
     g: `<rect x="21" y="26" width="9" height="20" rx="3"/><rect x="24" y="17" width="4" height="10"/><path d="M34 24h12l-3 14h-6z"/><rect x="38" y="38" width="2" height="8"/><rect x="35" y="45" width="8" height="2"/>` },
@@ -69,37 +77,58 @@ const ICONS = [
     g: `<rect x="17" y="22" width="30" height="20" rx="2"/><path d="M17 24l15 11 15-11" fill="none" stroke="BG" stroke-width="3"/>` },
   { key: "theater", subs: ["theatre", "cinema", "arts_centre"],
     g: `<path d="M17 20h16v12a8 8 0 0 1-16 0z"/><path d="M31 28h16v12a8 8 0 0 1-16 0z" stroke="BG" stroke-width="2"/><circle cx="22" cy="26" r="1.8" fill="BG"/><circle cx="28" cy="26" r="1.8" fill="BG"/><circle cx="36" cy="34" r="1.8" fill="BG"/><circle cx="42" cy="34" r="1.8" fill="BG"/>` },
-  { key: "general", subs: ["supermarket", "convenience", "general", "department_store", "greengrocer", "marketplace", "mall"],
+  { key: "general", subs: ["supermarket", "convenience", "general", "department_store", "greengrocer", "marketplace", "mall", "bank", "atm"],
     g: `<path d="M19 28h26l-3 17H22z"/><path d="M25 28a7 9 0 0 1 14 0" fill="none" stroke="white" stroke-width="3"/>` },
   { key: "butcher", subs: ["butcher"],
     g: `<rect x="16" y="26" width="25" height="12" rx="4"/><rect x="37" y="21" width="10" height="11" rx="3"/><rect x="19" y="36" width="3" height="10"/><rect x="34" y="36" width="3" height="10"/><rect x="38" y="18" width="2" height="4"/><rect x="44" y="18" width="2" height="4"/>` },
   { key: "trapper", subs: ["fabric", "sewing", "outdoor"],
-    g: `<ellipse cx="32" cy="39" rx="9" ry="7"/><circle cx="21" cy="30" r="3.5"/><circle cx="28" cy="23" r="3.5"/><circle cx="36" cy="23" r="3.5"/><circle cx="43" cy="30" r="3.5"/>` }
+    g: `<ellipse cx="32" cy="39" rx="9" ry="7"/><circle cx="21" cy="30" r="3.5"/><circle cx="28" cy="23" r="3.5"/><circle cx="36" cy="23" r="3.5"/><circle cx="43" cy="30" r="3.5"/>` },
+  { key: "gun", subs: ["weapons"],
+    g: `<rect x="12" y="22" width="34" height="9" rx="1.5"/><path d="M21 30h10l-3 17h-9z"/>` }
 ];
 
 // Three looks for the icons:
 //   ""    = black circle with white glyph (RDR2)
-//   "-g"  = flat colored glyph, no circle (GTA)
-//   "-mc" = black circle drawn at low resolution so it looks pixelated (Minecraft)
-const VARIANTS = [
-  { s: "", circle: true },
-  { s: "-g", circle: false },
-  { s: "-mc", circle: true, pixel: 28 }
-];
+//   "-g"  = flat colored glyphs, no circle (GTA)
+//   "-f"  = colored circle badge with white glyph (Fortnite, generic map icons)
+const VARIANTS = [{ s: "" }, { s: "-g" }, { s: "-f" }];
+
+// GTA colors for the flat icons
 const GTA_COL = {
-  saloon: "#c58cf0", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
+  saloon: "#e23b3f", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
   photo: "#ffffff", stagecoach: "#ffffff", tailor: "#f5e04a", doctor: "#ff7a7a", hotel: "#7fd0ff",
   pawn: "#bdbdbd", barber: "#ffffff", info: "#bdbdbd", post: "#ffffff", theater: "#ffffff",
-  general: "#9be8a8", butcher: "#ff7a7a", trapper: "#f5e04a"
+  general: "#d8f0d8", butcher: "#ff7a7a", trapper: "#f5e04a", gun: "#e23b3f"
+};
+// GTA-only drawings that replace the default glyph (red lips, green $ house, white car)
+const GTA_G = {
+  saloon: { col: "#e23b3f",
+    g: `<path d="M12 33c5-8 11-9 20-5 9-4 15-3 20 5-5 4-11 6-20 6S17 37 12 33z"/><path d="M14 36c4 7 10 10 18 10s14-3 18-10c-5 3-11 4-18 4s-13-1-18-4z"/>` },
+  general: { col: "#d8f0d8",
+    g: `<path d="M32 12L12 30h6v20h28V30h6z"/><text x="32" y="46" font-size="22" font-weight="bold" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" fill="#1f8a3e">$</text>` },
+  stagecoach: { col: "#ffffff",
+    g: `<path d="M10 38l5-12c1-3 3-4 6-4h22c3 0 5 1 6 4l5 12v9h-6v-4H16v4h-6z"/><rect x="19" y="27" width="26" height="8" rx="2" fill="BG"/>` }
+};
+// Fortnite badge colors (generic category colors)
+const FORT_COL = {
+  saloon: "#8a4fc0", food: "#f08a24", cafe: "#9c6b3f", stable: "#35557a", bait: "#6b7886",
+  photo: "#d9559b", stagecoach: "#35557a", tailor: "#2f80d8", doctor: "#e04848", hotel: "#1fa7a0",
+  pawn: "#2f80d8", barber: "#6b7886", info: "#6b7886", post: "#6b7886", theater: "#d9559b",
+  general: "#2f80d8", butcher: "#2f80d8", trapper: "#2f80d8", gun: "#2f80d8"
 };
 
 function iconUri(i, v) {
-  const hole = v.circle ? (i.dim ? "#bdbdbd" : "#000000") : "#2b2b2b";
-  const fill = v.circle ? "white" : (GTA_COL[i.key] || "white");
-  const body = i.g.split("BG").join(hole).split('stroke="white"').join('stroke="' + fill + '"');
-  const disc = v.circle ? `<circle cx="32" cy="32" r="31" fill="${hole}"/>` : "";
+  const og = v.s === "-g" ? GTA_G[i.key] : null;
+  let disc = null, fill = "white", ring = "";
+  if (v.s === "") disc = i.dim ? "#bdbdbd" : "#000000";
+  else if (v.s === "-f") { disc = FORT_COL[i.key] || "#2f80d8"; ring = ` stroke="white" stroke-width="3"`; }
+  else fill = (og && og.col) || GTA_COL[i.key] || "white";
+  const hole = disc || "#2b2b2b";
+  const src = og ? og.g : i.g;
+  const body = src.split("BG").join(hole).split('stroke="white"').join('stroke="' + fill + '"');
+  const bg = disc ? `<circle cx="32" cy="32" r="${ring ? 29 : 31}" fill="${disc}"${ring}/>` : "";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">` +
-    `${disc}<g fill="${fill}">${body}</g></svg>`;
+    `${bg}<g fill="${fill}">${body}</g></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
@@ -114,15 +143,7 @@ function loadIcons() {
         const c = document.createElement("canvas");
         c.width = 128; c.height = 128;
         const ctx = c.getContext("2d");
-        if (v.pixel) {
-          const sm = document.createElement("canvas");
-          sm.width = sm.height = v.pixel;
-          sm.getContext("2d").drawImage(im, 0, 0, v.pixel, v.pixel);
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(sm, 0, 0, 128, 128);
-        } else {
-          ctx.drawImage(im, 0, 0, 128, 128);
-        }
+        ctx.drawImage(im, 0, 0, 128, 128);
         iconData[i.key + v.s] = ctx.getImageData(0, 0, 128, 128);
       } catch (e) {}
       res();
@@ -132,26 +153,6 @@ function loadIcons() {
   }))));
   return Promise.all(jobs);
 }
-
-// Random pixel speckle (dark and light dots) used to give Minecraft its mottled many-shades look
-function makeNoiseURL() {
-  const c = document.createElement("canvas");
-  c.width = c.height = 64;
-  const ctx = c.getContext("2d");
-  const d = ctx.createImageData(64, 64);
-  for (let i = 0; i < 64 * 64; i++) {
-    const r = Math.random();
-    let v = 0, a = 0;
-    if (r < 0.16) { v = 0; a = 38; }
-    else if (r < 0.30) { v = 0; a = 18; }
-    else if (r > 0.86) { v = 255; a = 28; }
-    else if (r > 0.72) { v = 255; a = 13; }
-    d.data[i * 4] = v; d.data[i * 4 + 1] = v; d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = a;
-  }
-  ctx.putImageData(d, 0, 0);
-  return c.toDataURL();
-}
-const NOISE = makeNoiseURL();
 
 const ALL_SUBS = ICONS.flatMap(i => i.subs);
 const ICON_MATCH = ["match", ["get", "subclass"]];
@@ -178,6 +179,10 @@ function poiLayer(t, textColor, haloColor) {
 
 // ---------- Themes ----------
 // cv = landcover colors, lu = land-use colors (extra shades for different kinds of land)
+const GRID_BG =
+  "linear-gradient(to right, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 12.5% 100%," +
+  "linear-gradient(to bottom, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 100% 12.5%";
+
 const THEMES = {
   gta: {
     label: "GTA V",
@@ -201,21 +206,21 @@ const THEMES = {
     fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(70,55,35,.25) 100%)," +
         "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .17  0 0 0 0 .1  0 0 0 .3 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>\")"
   },
-  mc: {
-    label: "Minecraft",
-    land: "#7fb238", green: "#7fb238", park: "#58a02a", water: "#3c3cf0",
-    cv: { wood: "#3b7f20", farmland: "#93bf45", grass: "#7fb238", sand: "#e9dba2",
-          rock: "#8d8d8d", wetland: "#4f9a2b", ice: "#f4faff" },
-    lu: { residential: "#6aa62f", commercial: "#9cc24b", retail: "#9cc24b", industrial: "#8fa551",
-          hospital: "#86b83e", school: "#86b83e", university: "#86b83e", cemetery: "#5a9628",
-          stadium: "#6aa62f", pitch: "#74b034", playground: "#74b034" },
-    building: "#a8723a", buildingEdge: "#6b431a",
-    roadCase: "#9a8148", road: "#c9a96a", major: "#dcc182", rw: 0.7,
-    text: "#ffffff", halo: "#000000", ts: 0.9, font: "Noto Sans Bold",
-    iconSuffix: "-mc", iconSize: 0.55,
-    noise: true,
-    frame: "inset 0 0 0 5px #8a6b4f, inset 0 0 0 18px #dcc3a1, inset 0 0 0 23px #a4825f",
-    fx: ""
+  fn: {
+    label: "Fortnite",
+    land: "#6db33f", green: "#6db33f", park: "#5fa636", water: "#1d79bd",
+    cv: { grass: "#6db33f", wood: "#4a8f2c", farmland: "#d9b53a", sand: "#eadfb4",
+          rock: "#8f9d78", wetland: "#3e7b48", ice: "#f6fafc" },
+    lu: { residential: "#b8c2a6", commercial: "#c9cbc1", retail: "#c9cbc1", industrial: "#9c9d93",
+          hospital: "#c9cbc1", school: "#b8c2a6", university: "#b8c2a6", cemetery: "#5d9a38",
+          stadium: "#76b843", pitch: "#7cbc47", playground: "#7cbc47", railway: "#9c9d93",
+          quarry: "#8f9d78", military: "#7a9a62" },
+    building: "#b4b7aa", buildingEdge: "#7c8073",
+    roadCase: "#8a7a5e", road: "#cdbb97", major: "#dccba6", rw: 0.7, ww: 6,
+    text: "#ffffff", halo: "#16324a", ts: 1.15, font: "Noto Sans Bold",
+    iconSuffix: "-f", iconSize: 0.55,
+    grid: true,
+    fx: GRID_BG
   }
 };
 
@@ -247,7 +252,7 @@ function makeStyle(t) {
       { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
       { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
       { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
-        paint: { "line-color": t.water, "line-width": wz(0.8, 3) } },
+        paint: { "line-color": t.water, "line-width": wz(0.8, t.ww || 3) } },
       { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
         paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building } },
       { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
@@ -379,22 +384,27 @@ loadIcons().then(() => {
       .addTo(map);
   });
 
+  // Fortnite-style grid labels: letters A-H across the top, numbers 1-8 down the left
+  const gridEl = document.getElementById("grid");
+  "ABCDEFGH".split("").forEach((c, i) => {
+    const s = document.createElement("span");
+    s.className = "gt"; s.textContent = c; s.style.left = (i * 12.5 + 6.25) + "%";
+    gridEl.appendChild(s);
+  });
+  for (let n = 1; n <= 8; n++) {
+    const s = document.createElement("span");
+    s.className = "gl"; s.textContent = n; s.style.top = ((n - 1) * 12.5 + 6.25) + "%";
+    gridEl.appendChild(s);
+  }
+
   const bar = document.getElementById("themes");
   const fx = document.getElementById("fx");
   function setTheme(key) {
     const t = THEMES[key];
     // diff:false = replace the whole style, so switching themes can't half-fail
     map.setStyle(makeStyle(t), { diff: false });
-    if (t.noise) {
-      fx.style.background = "url(" + NOISE + ")";
-      fx.style.backgroundSize = "256px 256px";
-      fx.style.imageRendering = "pixelated";
-    } else {
-      fx.style.background = t.fx;
-      fx.style.backgroundSize = "";
-      fx.style.imageRendering = "";
-    }
-    fx.style.boxShadow = t.frame || "none";
+    fx.style.background = t.fx;
+    gridEl.style.display = t.grid ? "block" : "none";
     [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
   }
   Object.entries(THEMES).forEach(([k, t]) => {
