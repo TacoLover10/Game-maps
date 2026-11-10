@@ -10,7 +10,6 @@
 <style>
   html, body { margin: 0; height: 100%; background: #000; }
   #map { position: absolute; inset: 0; }
-  #map.pix .maplibregl-canvas { image-rendering: pixelated; }
   #fx { position: absolute; inset: 0; pointer-events: none; }
   #themes {
     position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px);
@@ -24,7 +23,7 @@
   #badge {
     position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 5;
     font: 600 12px -apple-system, sans-serif; color: #fff; background: rgba(0,0,0,.6);
-    padding: 6px 10px; border-radius: 12px;
+    padding: 6px 10px; border-radius: 12px; max-width: 70%;
   }
 </style>
 </head>
@@ -35,6 +34,8 @@
 <div id="themes"></div>
 
 <script>
+window.addEventListener("error", e => { document.getElementById("badge").textContent = "JS error: " + e.message; });
+
 // ---------- Place icons ----------
 // subs = OpenStreetMap place types that get this icon. dim = grayed out like the game.
 const ICONS = [
@@ -79,11 +80,11 @@ const ICONS = [
 // Three looks for the icons:
 //   ""    = black circle with white glyph (RDR2)
 //   "-g"  = flat colored glyph, no circle (GTA)
-//   "-mc" = black circle, drawn at 16x16 and blown up so it looks blocky (Minecraft)
+//   "-mc" = black circle drawn at low resolution so it looks pixelated (Minecraft)
 const VARIANTS = [
   { s: "", circle: true },
   { s: "-g", circle: false },
-  { s: "-mc", circle: true, pixel: 16 }
+  { s: "-mc", circle: true, pixel: 28 }
 ];
 const GTA_COL = {
   saloon: "#c58cf0", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
@@ -132,6 +133,26 @@ function loadIcons() {
   return Promise.all(jobs);
 }
 
+// Random pixel speckle (dark and light dots) used to give Minecraft its mottled many-shades look
+function makeNoiseURL() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d");
+  const d = ctx.createImageData(64, 64);
+  for (let i = 0; i < 64 * 64; i++) {
+    const r = Math.random();
+    let v = 0, a = 0;
+    if (r < 0.16) { v = 0; a = 38; }
+    else if (r < 0.30) { v = 0; a = 18; }
+    else if (r > 0.86) { v = 255; a = 28; }
+    else if (r > 0.72) { v = 255; a = 13; }
+    d.data[i * 4] = v; d.data[i * 4 + 1] = v; d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = a;
+  }
+  ctx.putImageData(d, 0, 0);
+  return c.toDataURL();
+}
+const NOISE = makeNoiseURL();
+
 const ALL_SUBS = ICONS.flatMap(i => i.subs);
 const ICON_MATCH = ["match", ["get", "subclass"]];
 ICONS.forEach(i => ICON_MATCH.push(i.subs, i.key));
@@ -156,13 +177,17 @@ function poiLayer(t, textColor, haloColor) {
 }
 
 // ---------- Themes ----------
+// cv = landcover colors, lu = land-use colors (extra shades for different kinds of land)
 const THEMES = {
   gta: {
     label: "GTA V",
-    land: "#363636", green: "#3b4237", park: "#3b4237", water: "#121212",
-    building: "#444444", buildingEdge: "#2b2b2b",
-    roadCase: "#262626", road: "#c4c4c4", major: "#e9e9e9", rw: 1.4,
-    text: "#e9e9e9", halo: "#1c1c1c", font: "Noto Sans Bold",
+    land: "#303030", green: "#363d33", park: "#363d33", water: "#0b0b0b",
+    lu: { residential: "#3b3b3b", commercial: "#474747", retail: "#474747", industrial: "#2a2a2a",
+          hospital: "#444444", school: "#404040", university: "#404040", cemetery: "#343c31",
+          stadium: "#3a4636", pitch: "#343c31", playground: "#343c31", railway: "#2a2a2a" },
+    building: "#4d4d4d", buildingEdge: "#262626",
+    roadCase: "#1c1c1c", road: "#c9c9c9", major: "#f1f1f1", rw: 1.9,
+    text: "#e9e9e9", halo: "#161616", font: "Noto Sans Bold",
     iconSuffix: "-g", iconSize: 0.7,
     fx: "none"
   },
@@ -178,20 +203,34 @@ const THEMES = {
   },
   mc: {
     label: "Minecraft",
-    land: "#7fb238", green: "#7fb238", wood: "#2f7d1c", sand: "#e8d9a0", rock: "#707070", wetland: "#4e9a2c",
-    park: "#4f9a25", water: "#3a3af0",
-    building: "#b5651d", buildingEdge: "#7a4210",
-    roadCase: "#a58a50", road: "#c9a96a", major: "#d9bd7c", rw: 0.8,
-    text: "#ffffff", halo: "#000000", ts: 0.65, font: "Noto Sans Bold",
-    pixel: true, iconSuffix: "-mc", iconSize: 0.6,
+    land: "#7fb238", green: "#7fb238", park: "#58a02a", water: "#3c3cf0",
+    cv: { wood: "#3b7f20", farmland: "#93bf45", grass: "#7fb238", sand: "#e9dba2",
+          rock: "#8d8d8d", wetland: "#4f9a2b", ice: "#f4faff" },
+    lu: { residential: "#6aa62f", commercial: "#9cc24b", retail: "#9cc24b", industrial: "#8fa551",
+          hospital: "#86b83e", school: "#86b83e", university: "#86b83e", cemetery: "#5a9628",
+          stadium: "#6aa62f", pitch: "#74b034", playground: "#74b034" },
+    building: "#a8723a", buildingEdge: "#6b431a",
+    roadCase: "#9a8148", road: "#c9a96a", major: "#dcc182", rw: 0.7,
+    text: "#ffffff", halo: "#000000", ts: 0.9, font: "Noto Sans Bold",
+    iconSuffix: "-mc", iconSize: 0.55,
+    noise: true,
     frame: "inset 0 0 0 5px #8a6b4f, inset 0 0 0 18px #dcc3a1, inset 0 0 0 23px #a4825f",
-    fx: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='1'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0'/></filter><rect width='128' height='128' filter='url(%23n)'/></svg>\")"
+    fx: ""
   }
 };
 
 const SOURCES = { omt: { type: "vector", url: "https://tiles.openfreemap.org/planet" } };
 const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
 const wz = (a, b) => ["interpolate", ["exponential", 1.5], ["zoom"], 8, a, 14, b, 20, b * 6];
+
+function matchExpr(prop, obj, fallback) {
+  const keys = Object.keys(obj || {});
+  if (!keys.length) return fallback;
+  const e = ["match", ["get", prop]];
+  keys.forEach(k => e.push(k, obj[k]));
+  e.push(fallback);
+  return e;
+}
 
 function makeStyle(t) {
   if (t.kind === "rdr2") return makeRdr2Style(t);
@@ -202,17 +241,13 @@ function makeStyle(t) {
     layers: [
       { id: "bg", type: "background", paint: { "background-color": t.land } },
       { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
-        paint: { "fill-color": ["match", ["get", "class"],
-          "wood", t.wood || t.green,
-          "sand", t.sand || t.green,
-          "rock", t.rock || t.green,
-          "wetland", t.wetland || t.green,
-          "ice", t.ice || t.green,
-          t.green] } },
+        paint: { "fill-color": matchExpr("class", t.cv, t.green) } },
+      { id: "landuse", type: "fill", source: "omt", "source-layer": "landuse",
+        paint: { "fill-color": matchExpr("class", t.lu, "rgba(0,0,0,0)") } },
       { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
       { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
       { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
-        paint: { "line-color": t.water, "line-width": wz(0.5, 2) } },
+        paint: { "line-color": t.water, "line-width": wz(0.8, 3) } },
       { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
         paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building } },
       { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
@@ -298,8 +333,6 @@ function makeRdr2Style(t) {
 }
 
 // ---------- App ----------
-const PIX = 2; // Minecraft pixel size: how many screen pixels wide each map "pixel" is. Try 3 for chunkier.
-
 loadIcons().then(() => {
   const map = new maplibregl.Map({
     container: "map",
@@ -322,7 +355,7 @@ loadIcons().then(() => {
   map.addControl(geo, "top-right");
   map.on("load", () => geo.trigger());
 
-  // Debug badge: zoom level and how many places are on screen
+  // Badge: zoom level, places on screen, and any map error
   const badge = document.getElementById("badge");
   function updateBadge() {
     const z = map.getZoom();
@@ -332,6 +365,9 @@ loadIcons().then(() => {
   }
   map.on("idle", updateBadge);
   map.on("zoomend", updateBadge);
+  map.on("error", e => {
+    badge.textContent = "map error: " + String((e.error && e.error.message) || "unknown").slice(0, 120);
+  });
 
   // Tap a place icon to see its name
   map.on("click", "poi", e => {
@@ -343,31 +379,22 @@ loadIcons().then(() => {
       .addTo(map);
   });
 
-  // Minecraft look: render the map small, then scale it up with hard pixel edges
-  const mapEl = document.getElementById("map");
-  function applyPixel(on) {
-    if (on) {
-      mapEl.style.width = (100 / PIX) + "%";
-      mapEl.style.height = (100 / PIX) + "%";
-      mapEl.style.transform = "scale(" + PIX + ")";
-      mapEl.style.transformOrigin = "0 0";
-      mapEl.classList.add("pix");
-    } else {
-      mapEl.style.width = ""; mapEl.style.height = "";
-      mapEl.style.transform = ""; mapEl.style.transformOrigin = "";
-      mapEl.classList.remove("pix");
-    }
-    map.resize();
-  }
-
   const bar = document.getElementById("themes");
   const fx = document.getElementById("fx");
   function setTheme(key) {
     const t = THEMES[key];
-    map.setStyle(makeStyle(t));
-    fx.style.background = t.fx;
+    // diff:false = replace the whole style, so switching themes can't half-fail
+    map.setStyle(makeStyle(t), { diff: false });
+    if (t.noise) {
+      fx.style.background = "url(" + NOISE + ")";
+      fx.style.backgroundSize = "256px 256px";
+      fx.style.imageRendering = "pixelated";
+    } else {
+      fx.style.background = t.fx;
+      fx.style.backgroundSize = "";
+      fx.style.imageRendering = "";
+    }
     fx.style.boxShadow = t.frame || "none";
-    applyPixel(!!t.pixel);
     [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
   }
   Object.entries(THEMES).forEach(([k, t]) => {
