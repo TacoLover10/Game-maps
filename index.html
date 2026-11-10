@@ -20,19 +20,29 @@
     border: 2px solid #fff; background: rgba(0,0,0,.65); color: #fff;
   }
   #themes button.on { background: #fff; color: #000; }
+  #badge {
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 5;
+    font: 600 12px -apple-system, sans-serif; color: #fff; background: rgba(0,0,0,.6);
+    padding: 6px 10px; border-radius: 12px;
+  }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="fx"></div>
+<div id="badge">loading...</div>
 <div id="themes"></div>
 
 <script>
-// ---------- Place icons (RDR2-style): black circle + white glyph ----------
+// ---------- Place icons: black circle + white glyph ----------
 // subs = OpenStreetMap place types that get this icon. dim = grayed out like the game.
 const ICONS = [
   { key: "saloon", subs: ["bar", "pub", "biergarten", "nightclub"],
     g: `<rect x="21" y="26" width="9" height="20" rx="3"/><rect x="24" y="17" width="4" height="10"/><path d="M34 24h12l-3 14h-6z"/><rect x="38" y="38" width="2" height="8"/><rect x="35" y="45" width="8" height="2"/>` },
+  { key: "food", subs: ["restaurant", "fast_food", "food_court"],
+    g: `<rect x="21" y="18" width="3" height="12"/><rect x="26" y="18" width="3" height="12"/><rect x="31" y="18" width="3" height="12"/><rect x="21" y="28" width="13" height="4" rx="2"/><rect x="26" y="30" width="3" height="16"/><path d="M42 18c-4 3-5 8-5 13h5v15h3V18z"/>` },
+  { key: "cafe", subs: ["cafe", "bakery", "ice_cream", "confectionery", "coffee"],
+    g: `<path d="M18 26h22v10a9 9 0 0 1-9 9h-4a9 9 0 0 1-9-9z"/><path d="M40 29h3a4 4 0 0 1 0 8h-3" fill="none" stroke="white" stroke-width="3"/><rect x="21" y="17" width="2.5" height="6"/><rect x="28" y="17" width="2.5" height="6"/><rect x="35" y="17" width="2.5" height="6"/>` },
   { key: "stable", subs: ["bicycle_rental", "bicycle"],
     g: `<g fill="none" stroke="white" stroke-width="3"><circle cx="23" cy="38" r="7"/><circle cx="41" cy="38" r="7"/><path d="M23 38l7-12h8l3 12M30 26l5 12"/></g>` },
   { key: "bait", subs: ["aquarium", "fishing"],
@@ -71,11 +81,22 @@ function iconUri(i) {
     `<circle cx="32" cy="32" r="31" fill="${bg}"/><g fill="white">${i.g.split("BG").join(bg)}</g></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
-const iconImgs = {};
+
+// Safari can't use SVG images directly as map icons, so draw each one onto a canvas first
+const iconData = {};
 function loadIcons() {
   return Promise.all(ICONS.map(i => new Promise(res => {
     const im = new Image(64, 64);
-    im.onload = () => { iconImgs[i.key] = im; res(); };
+    im.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = 128; c.height = 128;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(im, 0, 0, 128, 128);
+        iconData[i.key] = ctx.getImageData(0, 0, 128, 128);
+      } catch (e) {}
+      res();
+    };
     im.onerror = () => res();
     im.src = iconUri(i);
   })));
@@ -84,7 +105,24 @@ function loadIcons() {
 const ALL_SUBS = ICONS.flatMap(i => i.subs);
 const ICON_MATCH = ["match", ["get", "subclass"]];
 ICONS.forEach(i => ICON_MATCH.push(i.subs, i.key));
-ICON_MATCH.push("general");
+ICON_MATCH.push(["match", ["get", "class"], ["restaurant", "fast_food"], "food", ["cafe", "bakery", "ice_cream"], "cafe", "general"]);
+
+function poiLayer(t, textColor, haloColor) {
+  return {
+    id: "poi", type: "symbol", source: "omt", "source-layer": "poi", minzoom: 14,
+    filter: ["any",
+      ["in", ["get", "subclass"], ["literal", ALL_SUBS]],
+      ["in", ["get", "class"], ["literal", ["shop", "grocery", "restaurant", "fast_food", "cafe", "bakery", "ice_cream"]]]
+    ],
+    layout: {
+      "icon-image": ICON_MATCH, "icon-size": 0.55, "icon-padding": 4, "icon-allow-overlap": false,
+      "symbol-sort-key": ["coalesce", ["get", "rank"], 99],
+      "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11,
+      "text-anchor": "top", "text-offset": [0, 1.2], "text-optional": true, "text-max-width": 7
+    },
+    paint: { "text-color": textColor, "text-halo-color": haloColor, "text-halo-width": 1.3 }
+  };
+}
 
 // ---------- Themes ----------
 const THEMES = {
@@ -109,168 +147,3 @@ const THEMES = {
     label: "Minecraft-ish",
     land: "#7a5a3a", park: "#5da130", green: "#5da130", water: "#2f56d6",
     building: "#8b8b8b", roadCase: "#4a4a4a", road: "#b0a487",
-    major: "#d9cfa8", text: "#ffffff", halo: "#000000", font: "Noto Sans Bold",
-    fx: "none"
-  }
-};
-
-const SOURCES = { omt: { type: "vector", url: "https://tiles.openfreemap.org/planet" } };
-const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
-const wz = (a, b) => ["interpolate", ["exponential", 1.5], ["zoom"], 8, a, 14, b, 20, b * 6];
-
-function makeStyle(t) {
-  if (t.kind === "rdr2") return makeRdr2Style(t);
-  const classes = ["in", "class", "motorway", "trunk", "primary", "secondary", "tertiary", "minor", "service"];
-  return {
-    version: 8, glyphs: GLYPHS, sources: SOURCES,
-    layers: [
-      { id: "bg", type: "background", paint: { "background-color": t.land } },
-      { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
-        filter: ["in", "class", "grass", "wood", "farmland"], paint: { "fill-color": t.green } },
-      { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
-      { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
-      { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
-        paint: { "line-color": t.water, "line-width": wz(0.5, 2) } },
-      { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
-        paint: { "fill-color": t.building } },
-      { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
-        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": t.roadCase, "line-width": wz(1.2, 4) } },
-      { id: "road", type: "line", source: "omt", "source-layer": "transportation",
-        filter: classes, layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": ["match", ["get", "class"], ["motorway", "trunk", "primary"], t.major, t.road],
-          "line-width": wz(0.7, 3)
-        } },
-      { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 13,
-        layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11 },
-        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 1.5 } },
-      { id: "place", type: "symbol", source: "omt", "source-layer": "place",
-        filter: ["in", "class", "city", "town", "village", "suburb"],
-        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-size": 14, "text-transform": "uppercase" },
-        paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 2 } }
-    ]
-  };
-}
-
-function makeRdr2Style(t) {
-  const L = "transportation";
-  const round = { "line-cap": "round", "line-join": "round" };
-  const major = ["in", "class", "motorway", "trunk", "primary"];
-  const mid = ["in", "class", "secondary", "tertiary"];
-  const minor = ["in", "class", "minor", "service"];
-  const ring = (id, off, op) => ({
-    id, type: "line", source: "omt", "source-layer": "water",
-    paint: { "line-color": t.waterRing, "line-width": 1, "line-offset": off, "line-opacity": op }
-  });
-  return {
-    version: 8, glyphs: GLYPHS, sources: SOURCES,
-    layers: [
-      { id: "bg", type: "background", paint: { "background-color": t.land } },
-      { id: "cover", type: "fill", source: "omt", "source-layer": "landcover",
-        filter: ["in", "class", "grass", "wood", "farmland"], paint: { "fill-color": t.green } },
-      { id: "marsh", type: "fill", source: "omt", "source-layer": "landcover",
-        filter: ["==", "class", "wetland"], paint: { "fill-color": t.marsh } },
-      { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
-      { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
-      ring("ring3", 19, 0.3), ring("ring2", 11, 0.45), ring("ring1", 5, 0.6),
-      { id: "water-edge", type: "line", source: "omt", "source-layer": "water",
-        paint: { "line-color": t.waterEdge, "line-width": 1.4 } },
-      { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
-        paint: { "line-color": t.waterEdge, "line-width": wz(0.6, 2) } },
-      { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 13,
-        paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge } },
-      { id: "rail", type: "line", source: "omt", "source-layer": L, filter: ["==", "class", "rail"],
-        paint: { "line-color": t.ink, "line-width": wz(1.2, 3.5) } },
-      { id: "rail-ties", type: "line", source: "omt", "source-layer": L, filter: ["==", "class", "rail"],
-        paint: { "line-color": t.land, "line-width": wz(0.6, 1.6), "line-dasharray": [1.5, 2.5] } },
-      { id: "case-minor", type: "line", source: "omt", "source-layer": L, filter: minor, layout: round,
-        paint: { "line-color": t.ink, "line-width": wz(0.8, 2.2) } },
-      { id: "case-mid", type: "line", source: "omt", "source-layer": L, filter: mid, layout: round,
-        paint: { "line-color": t.ink, "line-width": wz(1.2, 4.5) } },
-      { id: "case-major", type: "line", source: "omt", "source-layer": L, filter: major, layout: round,
-        paint: { "line-color": t.ink, "line-width": wz(1.8, 6.5) } },
-      { id: "inner-mid", type: "line", source: "omt", "source-layer": L, filter: mid, minzoom: 13, layout: round,
-        paint: { "line-color": t.land, "line-width": wz(0.3, 1.6) } },
-      { id: "inner-major", type: "line", source: "omt", "source-layer": L, filter: major, minzoom: 12, layout: round,
-        paint: { "line-color": t.land, "line-width": wz(0.4, 2.4) } },
-      { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 14,
-        layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11,
-                  "text-letter-spacing": 0.1 },
-        paint: { "text-color": t.ink, "text-halo-color": t.land, "text-halo-width": 1.5 } },
-      { id: "water-name", type: "symbol", source: "omt", "source-layer": "water_name",
-        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-transform": "uppercase",
-                  "text-letter-spacing": 0.5, "text-max-width": 6,
-                  "text-size": ["interpolate", ["linear"], ["zoom"], 8, 14, 14, 30] },
-        paint: { "text-color": t.waterText } },
-      { id: "poi", type: "symbol", source: "omt", "source-layer": "poi", minzoom: 14,
-        filter: ["in", ["get", "subclass"], ["literal", ALL_SUBS]],
-        layout: {
-          "icon-image": ICON_MATCH, "icon-size": 0.55, "icon-padding": 6,
-          "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11,
-          "text-anchor": "top", "text-offset": [0, 1.2], "text-optional": true, "text-max-width": 7
-        },
-        paint: { "text-color": t.ink, "text-halo-color": t.land, "text-halo-width": 1.3 } },
-      { id: "place", type: "symbol", source: "omt", "source-layer": "place",
-        filter: ["in", "class", "city", "town", "village", "suburb"],
-        layout: { "text-field": ["get", "name"], "text-font": [t.font], "text-transform": "uppercase",
-                  "text-letter-spacing": 0.15, "text-max-width": 8,
-                  "text-size": ["interpolate", ["linear"], ["zoom"], 6, 12, 12, 24, 16, 38] },
-        paint: { "text-color": t.ink, "text-halo-width": 0 } }
-    ]
-  };
-}
-
-// ---------- App ----------
-loadIcons().then(() => {
-  const map = new maplibregl.Map({
-    container: "map",
-    style: makeStyle(THEMES.rdr2),
-    center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
-    zoom: 15
-  });
-
-  // Hand each icon to the map the moment a style asks for it
-  map.on("styleimagemissing", e => {
-    const im = iconImgs[e.id];
-    if (im && !map.hasImage(e.id)) map.addImage(e.id, im, { pixelRatio: 2 });
-  });
-
-  map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
-  const geo = new maplibregl.GeolocateControl({
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true, showUserHeading: true
-  });
-  map.addControl(geo, "top-right");
-  map.on("load", () => geo.trigger());
-
-  // Tap a place icon to see its name
-  map.on("click", "poi", e => {
-    const f = e.features && e.features[0];
-    if (!f) return;
-    new maplibregl.Popup({ closeButton: false })
-      .setLngLat(f.geometry.coordinates)
-      .setText(f.properties.name || f.properties.subclass)
-      .addTo(map);
-  });
-  map.on("mouseenter", "poi", () => map.getCanvas().style.cursor = "pointer");
-  map.on("mouseleave", "poi", () => map.getCanvas().style.cursor = "");
-
-  const bar = document.getElementById("themes");
-  const fx = document.getElementById("fx");
-  function setTheme(key) {
-    map.setStyle(makeStyle(THEMES[key]));
-    fx.style.background = THEMES[key].fx;
-    [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
-  }
-  Object.entries(THEMES).forEach(([k, t]) => {
-    const b = document.createElement("button");
-    b.textContent = t.label; b.dataset.k = k;
-    b.onclick = () => setTheme(k);
-    bar.appendChild(b);
-  });
-  setTheme("rdr2");
-});
-</script>
-</body>
-</html>
