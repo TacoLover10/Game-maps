@@ -126,50 +126,50 @@ window.addEventListener("error", e => { document.getElementById("badge").textCon
 // subs = OpenStreetMap place types that get this icon. dim = grayed out in the RDR2 set.
 const ICONS = [
   { key: "saloon", subs: ["bar", "pub", "biergarten", "nightclub"],
-    g: `<rect x="21" y="26" width="9" height="20" rx="3"/><rect x="24" y="17" width="4" height="10"/><path d="M34 24h12l-3 14h-6z"/><rect x="38" y="38" width="2" height="8"/><rect x="35" y="45" width="8" height="2"/>` },
+    g: `<rect x="19" y="16" width="5" height="11" rx="1"/><rect x="15" y="26" width="13" height="21" rx="4"/><rect x="18" y="33" width="7" height="8" rx="1" fill="BG"/><path d="M33 22h15l-2 13c-.5 3.2-2.6 5-5.5 5s-5-1.8-5.5-5z"/><rect x="39.2" y="39" width="3.6" height="6"/><rect x="35" y="44" width="12" height="3.5" rx="1.7"/>` },
   { key: "food", subs: ["restaurant", "fast_food", "food_court"],
-    g: `<rect x="21" y="18" width="3" height="12"/><rect x="26" y="18" width="3" height="12"/><rect x="31" y="18" width="3" height="12"/><rect x="21" y="28" width="13" height="4" rx="2"/><rect x="26" y="30" width="3" height="16"/><path d="M42 18c-4 3-5 8-5 13h5v15h3V18z"/>` },
+    g: `<rect x="17" y="14" width="3.5" height="14"/><rect x="23" y="14" width="3.5" height="14"/><rect x="29" y="14" width="3.5" height="14"/><rect x="17" y="26" width="15.5" height="5" rx="2.5"/><rect x="23" y="29" width="3.5" height="21"/><path d="M45 14c-5 4-6.500 10-6.500 17h6v19h3.500V14z"/>` },
   { key: "cafe", subs: ["cafe", "bakery", "ice_cream", "confectionery", "coffee"],
-    g: `<path d="M18 26h22v10a9 9 0 0 1-9 9h-4a9 9 0 0 1-9-9z"/><path d="M40 29h3a4 4 0 0 1 0 8h-3" fill="none" stroke="white" stroke-width="3"/><rect x="21" y="17" width="2.5" height="6"/><rect x="28" y="17" width="2.5" height="6"/><rect x="35" y="17" width="2.5" height="6"/>` },
+    g: `<path d="M14 26h27v11a11 11 0 0 1-11 11h-5a11 11 0 0 1-11-11z"/><path d="M41 29h3.500a5 5 0 0 1 0 10H41" fill="none" stroke="white" stroke-width="3.500"/><rect x="19" y="14" width="3" height="8" rx="1.500"/><rect x="26" y="14" width="3" height="8" rx="1.500"/><rect x="33" y="14" width="3" height="8" rx="1.500"/>` },
   { key: "stable", subs: ["bicycle_rental", "bicycle"],
-    g: `<g fill="none" stroke="white" stroke-width="3"><circle cx="23" cy="38" r="7"/><circle cx="41" cy="38" r="7"/><path d="M23 38l7-12h8l3 12M30 26l5 12"/></g>` },
+    g: `<g fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="40" r="7.500"/><circle cx="43" cy="40" r="7.500"/><path d="M21 40l8-14h9M29 26l6 14h8M38 26l5 14M26 21h7"/></g>` },
   { key: "bait", subs: ["aquarium", "fishing"],
-    g: `<ellipse cx="29" cy="32" rx="12" ry="8"/><path d="M39 32l10-8v16z"/><circle cx="24" cy="30" r="2" fill="BG"/>` },
+    g: `<path d="M12 32c5-8 14-10 22-6l4 2 10-8v24l-10-8-4 2c-8 4-17 2-22-6z"/><circle cx="21" cy="29" r="2.200" fill="BG"/>` },
   { key: "photo", subs: ["photo", "camera", "photo_booth"],
-    g: `<rect x="17" y="24" width="30" height="20" rx="4"/><rect x="25" y="20" width="10" height="6" rx="2"/><circle cx="32" cy="34" r="6" fill="BG"/><circle cx="32" cy="34" r="3"/>` },
+    g: `<rect x="14" y="23" width="36" height="24" rx="5"/><path d="M24 23l3-6h10l3 6z"/><circle cx="32" cy="35" r="8" fill="BG"/><circle cx="32" cy="35" r="4.500"/><rect x="42" y="26" width="5" height="3" rx="1" fill="BG"/>` },
   { key: "stagecoach", subs: ["bus_station"],
-    g: `<rect x="19" y="18" width="26" height="24" rx="5"/><rect x="23" y="22" width="18" height="8" fill="BG"/><circle cx="25" cy="36" r="2" fill="BG"/><circle cx="39" cy="36" r="2" fill="BG"/><rect x="22" y="42" width="4" height="4"/><rect x="38" y="42" width="4" height="4"/>` },
+    g: `<rect x="16" y="14" width="32" height="30" rx="6"/><rect x="20" y="19" width="24" height="12" rx="2" fill="BG"/><rect x="31" y="19" width="2" height="12"/><circle cx="23" cy="37" r="2.400" fill="BG"/><circle cx="41" cy="37" r="2.400" fill="BG"/><rect x="20" y="43" width="6" height="6" rx="1"/><rect x="38" y="43" width="6" height="6" rx="1"/>` },
   { key: "tailor", subs: ["clothes", "tailor", "boutique"],
-    g: `<path d="M24 18l-9 7 4 6 5-3v19h16V28l5 3 4-6-9-7c-1 3-4 5-8 5s-7-2-8-5z"/>` },
+    g: `<path d="M23 14l-11 8 5 8 6-4v20h18V26l6 4 5-8-11-8c-1 4-4 6-8 6s-7-2-8-6z"/>` },
   { key: "doctor", subs: ["doctors", "doctor", "clinic", "hospital", "dentist", "pharmacy", "chemist"],
-    g: `<g fill="none" stroke="white" stroke-width="3"><path d="M22 18v10a8 8 0 0 0 16 0V18"/><path d="M30 36v4a7 7 0 0 0 14 0v-5"/></g><circle cx="44" cy="31" r="4"/>` },
+    g: `<g transform="translate(-4 3)"><g fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><path d="M24 18v11a9 9 0 0 0 18 0V18"/><path d="M33 38v3a8 8 0 0 0 16 0v-4"/></g><circle cx="49" cy="32" r="5"/><circle cx="24" cy="16" r="2.800"/><circle cx="42" cy="16" r="2.800"/></g>` },
   { key: "hotel", subs: ["hotel", "motel", "hostel", "guest_house", "bed_and_breakfast"],
-    g: `<rect x="16" y="22" width="4" height="22"/><rect x="16" y="36" width="32" height="5"/><rect x="22" y="29" width="26" height="7" rx="2"/><circle cx="26" cy="25" r="3.5"/>` },
+    g: `<rect x="14" y="20" width="5" height="26" rx="1"/><rect x="14" y="37" width="36" height="6" rx="1"/><rect x="24" y="29" width="26" height="7" rx="2"/><circle cx="23" cy="31" r="4.500"/>` },
   { key: "pawn", dim: true, subs: ["pawnbroker", "second_hand", "antiques", "jewelry"],
-    g: `<path d="M20 25l3-5 3 5v20h-6zM29 25l3-5 3 5v20h-6zM38 25l3-5 3 5v20h-6z"/><rect x="18" y="29" width="28" height="3" fill="BG"/><rect x="18" y="38" width="28" height="3" fill="BG"/>` },
+    g: `<path d="M16 22l4-6 4 6v26h-8zM28 22l4-6 4 6v26h-8zM40 22l4-6 4 6v26h-8z"/><rect x="12" y="28" width="40" height="4" fill="BG"/><rect x="12" y="38" width="40" height="4" fill="BG"/>` },
   { key: "barber", subs: ["hairdresser", "barber", "beauty"],
-    g: `<g fill="none" stroke="white" stroke-width="3"><circle cx="23" cy="41" r="5"/><circle cx="41" cy="41" r="5"/><path d="M26 37l16-19M38 37L22 18"/></g>` },
+    g: `<g fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><circle cx="21" cy="43" r="6"/><circle cx="43" cy="43" r="6"/><path d="M25 38l18-22M39 38L21 16"/></g>` },
   { key: "info", dim: true, subs: ["newsagent", "kiosk", "information"],
-    g: `<circle cx="32" cy="21" r="4"/><rect x="28" y="28" width="8" height="18" rx="1.5"/>` },
+    g: `<circle cx="32" cy="18" r="5"/><rect x="27" y="27" width="10" height="22" rx="2"/>` },
   { key: "post", subs: ["post_office"],
-    g: `<rect x="17" y="22" width="30" height="20" rx="2"/><path d="M17 24l15 11 15-11" fill="none" stroke="BG" stroke-width="3"/>` },
+    g: `<rect x="13" y="19" width="38" height="26" rx="3"/><path d="M13 22l19 14 19-14" fill="none" stroke="BG" stroke-width="3.500"/>` },
   { key: "theater", subs: ["theatre", "cinema", "arts_centre"],
-    g: `<path d="M17 20h16v12a8 8 0 0 1-16 0z"/><path d="M31 28h16v12a8 8 0 0 1-16 0z" stroke="BG" stroke-width="2"/><circle cx="22" cy="26" r="1.8" fill="BG"/><circle cx="28" cy="26" r="1.8" fill="BG"/><circle cx="36" cy="34" r="1.8" fill="BG"/><circle cx="42" cy="34" r="1.8" fill="BG"/>` },
+    g: `<path d="M14 17h19v13a9.500 9.500 0 0 1-19 0z"/><path d="M31 27h19v13a9.500 9.500 0 0 1-19 0z" stroke="BG" stroke-width="2.500"/><circle cx="20" cy="25" r="2" fill="BG"/><circle cx="27" cy="25" r="2" fill="BG"/><path d="M19 32q4 4 9 0" fill="none" stroke="BG" stroke-width="2" stroke-linecap="round"/><circle cx="37" cy="35" r="2" fill="BG"/><circle cx="44" cy="35" r="2" fill="BG"/><path d="M37 44q4-4 9 0" fill="none" stroke="BG" stroke-width="2" stroke-linecap="round"/>` },
   { key: "general", subs: ["supermarket", "convenience", "general", "department_store", "greengrocer", "marketplace", "mall", "bank", "atm"],
-    g: `<path d="M19 28h26l-3 17H22z"/><path d="M25 28a7 9 0 0 1 14 0" fill="none" stroke="white" stroke-width="3"/>` },
+    g: `<path d="M15 27h34l-4 21H19z"/><path d="M22 27a10 12 0 0 1 20 0" fill="none" stroke="white" stroke-width="3.500"/>` },
   { key: "butcher", subs: ["butcher"],
-    g: `<rect x="16" y="26" width="25" height="12" rx="4"/><rect x="37" y="21" width="10" height="11" rx="3"/><rect x="19" y="36" width="3" height="10"/><rect x="34" y="36" width="3" height="10"/><rect x="38" y="18" width="2" height="4"/><rect x="44" y="18" width="2" height="4"/>` },
+    g: `<rect x="12" y="25" width="29" height="14" rx="5"/><rect x="36" y="19" width="14" height="14" rx="4"/><rect x="14" y="37" width="4" height="12"/><rect x="34" y="37" width="4" height="12"/><rect x="37" y="14" width="3" height="6"/><rect x="46" y="14" width="3" height="6"/><rect x="8" y="26" width="5" height="3"/>` },
   { key: "trapper", subs: ["fabric", "sewing", "outdoor"],
-    g: `<ellipse cx="32" cy="39" rx="9" ry="7"/><circle cx="21" cy="30" r="3.5"/><circle cx="28" cy="23" r="3.5"/><circle cx="36" cy="23" r="3.5"/><circle cx="43" cy="30" r="3.5"/>` },
+    g: `<ellipse cx="32" cy="40" rx="11" ry="8.500"/><circle cx="17" cy="30" r="4.500"/><circle cx="26" cy="21" r="4.500"/><circle cx="38" cy="21" r="4.500"/><circle cx="47" cy="30" r="4.500"/>` },
   { key: "gun", subs: ["weapons"],
-    g: `<rect x="12" y="22" width="34" height="9" rx="1.5"/><path d="M21 30h10l-3 17h-9z"/>` }
+    g: `<path d="M10 22h40v10H33l-2.500 17h-11l2.500-17H10z"/><rect x="26" y="32" width="9" height="4" fill="BG"/>` }
 ];
 
 // Three looks for the icons:
 //   ""    = black circle with white glyph (RDR2)
-//   "-g"  = flat colored glyphs, no circle (GTA)
+//   "-g"  = flat colored glyphs with a thin dark outline, no circle (GTA)
 //   "-f"  = colored circle badge with white glyph (Fortnite, generic map icons)
-const VARIANTS = [{ s: "" }, { s: "-g" }, { s: "-f" }];
+const VARIANTS = { "": { s: "", scale: 1.25 }, "-g": { s: "-g", scale: 1.3 }, "-f": { s: "-f", scale: 1.2 } };
 
 const GTA_COL = {
   saloon: "#e23b3f", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
@@ -179,11 +179,11 @@ const GTA_COL = {
 };
 const GTA_G = {
   saloon: { col: "#e23b3f",
-    g: `<path d="M12 33c5-8 11-9 20-5 9-4 15-3 20 5-5 4-11 6-20 6S17 37 12 33z"/><path d="M14 36c4 7 10 10 18 10s14-3 18-10c-5 3-11 4-18 4s-13-1-18-4z"/>` },
+    g: `<path d="M11 33c5-9 12-10 21-5 9-5 16-4 21 5-5 5-12 7-21 7S16 38 11 33z"/><path d="M13 36c4 8 11 11 19 11s15-3 19-11c-5 3-11 5-19 5s-14-2-19-5z"/>` },
   general: { col: "#d8f0d8",
-    g: `<path d="M32 12L12 30h6v20h28V30h6z"/><text x="32" y="46" font-size="22" font-weight="bold" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" fill="#1f8a3e">$</text>` },
+    g: `<path d="M32 11L11 30h7v21h28V30h7z"/><text x="32" y="47" font-size="24" font-weight="bold" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" fill="#1f8a3e">$</text>` },
   stagecoach: { col: "#ffffff",
-    g: `<path d="M10 38l5-12c1-3 3-4 6-4h22c3 0 5 1 6 4l5 12v9h-6v-4H16v4h-6z"/><rect x="19" y="27" width="26" height="8" rx="2" fill="BG"/>` }
+    g: `<path d="M9 39l5-13c1-3 3-4 6-4h24c3 0 5 1 6 4l5 13v10h-7v-4H16v4H9z"/><rect x="18" y="27" width="28" height="9" rx="2" fill="BG"/><circle cx="17" cy="41" r="2.500" fill="BG"/><circle cx="47" cy="41" r="2.500" fill="BG"/>` }
 };
 const FORT_COL = {
   saloon: "#8a4fc0", food: "#f08a24", cafe: "#9c6b3f", stable: "#35557a", bait: "#6b7886",
@@ -194,24 +194,27 @@ const FORT_COL = {
 
 function iconUri(i, v) {
   const og = v.s === "-g" ? GTA_G[i.key] : null;
-  let disc = null, fill = "white", ring = "";
+  let disc = null, fill = "white", ring = "", grp = "";
   if (v.s === "") disc = i.dim ? "#bdbdbd" : "#000000";
   else if (v.s === "-f") { disc = FORT_COL[i.key] || "#2f80d8"; ring = ` stroke="white" stroke-width="3"`; }
-  else fill = (og && og.col) || GTA_COL[i.key] || "white";
+  else {
+    fill = (og && og.col) || GTA_COL[i.key] || "white";
+    grp = ` stroke="#141414" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"`;
+  }
   const hole = disc || "#2b2b2b";
   const src = og ? og.g : i.g;
   const body = src.split("BG").join(hole).split('stroke="white"').join('stroke="' + fill + '"');
   const bg = disc ? `<circle cx="32" cy="32" r="${ring ? 29 : 31}" fill="${disc}"${ring}/>` : "";
+  const sc = v.scale;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">` +
-    `${bg}<g fill="${fill}">${body}</g></svg>`;
+    `${bg}<g fill="${fill}"${grp} transform="translate(32 32) scale(${sc}) translate(-32 -32)">${body}</g></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
 // Safari can't use SVG images directly as map icons, so draw each one onto a canvas first
 const iconData = {};
-function loadIcons() {
-  const jobs = [];
-  ICONS.forEach(i => VARIANTS.forEach(v => jobs.push(new Promise(res => {
+function makeIcon(i, v) {
+  return new Promise(res => {
     const im = new Image(64, 64);
     im.onload = () => {
       try {
@@ -225,8 +228,22 @@ function loadIcons() {
     };
     im.onerror = () => res();
     im.src = iconUri(i, v);
-  }))));
-  return Promise.all(jobs);
+  });
+}
+const variantPromises = {};
+function ensureVariant(s) {
+  if (!variantPromises[s]) variantPromises[s] = Promise.all(ICONS.map(i => makeIcon(i, VARIANTS[s])));
+  return variantPromises[s];
+}
+
+// OpenStreetMap place type -> icon name (used for the live low-zoom places)
+const SUB2KEY = {};
+ICONS.forEach(i => i.subs.forEach(s => { SUB2KEY[s] = i.key; }));
+function iconFor(tags) {
+  for (const k of [tags.shop, tags.amenity, tags.tourism]) {
+    if (k && SUB2KEY[k]) return SUB2KEY[k];
+  }
+  return "general";
 }
 
 const ALL_SUBS = ICONS.flatMap(i => i.subs);
@@ -251,6 +268,7 @@ function poiLayer(t, textColor, haloColor) {
     paint: { "text-color": textColor, "text-halo-color": haloColor, "text-halo-width": 1.3 }
   };
 }
+function poiColors(t) { return t.kind === "rdr2" ? [t.ink, t.land] : [t.text, t.halo]; }
 
 // ---------- Themes ----------
 const GRID_BG =
@@ -414,28 +432,48 @@ function makeRdr2Style(t) {
   };
 }
 
-// ---------- Directions helpers ----------
+// ---------- Network helpers ----------
 const EMPTY_FC = { type: "FeatureCollection", features: [] };
 let ROUTE_FC = EMPTY_FC;
 let PIN_FC = EMPTY_FC;
+let LOW_FC = EMPTY_FC;
+
+function fetchJson(url, ms, opts) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), ms);
+  return fetch(url, Object.assign({ signal: c.signal }, opts || {}))
+    .then(r => r.json())
+    .finally(() => clearTimeout(t));
+}
+// Resolves with the first promise that succeeds; rejects only if all of them fail
+function firstOk(ps) {
+  return new Promise((res, rej) => {
+    let n = ps.length, last;
+    ps.forEach(p => p.then(res, e => { last = e; if (--n === 0) rej(last); }));
+  });
+}
 
 // Free public routing (OpenStreetMap-based). Car, bike and foot profiles.
 const PROFILES = { car: "routed-car", bike: "routed-bike", foot: "routed-foot" };
-async function fetchRoute(from, to, mode) {
+function fetchRoute(from, to, mode) {
   const coords = from[0] + "," + from[1] + ";" + to[0] + "," + to[1];
   const q = "?overview=full&geometries=geojson&steps=true";
   const urls = ["https://routing.openstreetmap.de/" + PROFILES[mode] + "/route/v1/driving/" + coords + q];
   if (mode === "car") urls.push("https://router.project-osrm.org/route/v1/driving/" + coords + q);
-  let lastErr = "no route found";
-  for (const u of urls) {
-    try {
-      const r = await fetch(u);
-      const j = await r.json();
-      if (j.code === "Ok" && j.routes && j.routes.length) return j.routes[0];
-      lastErr = j.message || j.code || "no route found";
-    } catch (e) { lastErr = e.message || "network error"; }
-  }
-  throw new Error(lastErr);
+  return firstOk(urls.map(u => fetchJson(u, 12000).then(j => {
+    if (j.code === "Ok" && j.routes && j.routes.length) return j.routes[0];
+    throw new Error(j.message || j.code || "no route found");
+  })));
+}
+// Routes are cached, and a route that is still loading is shared, so prefetching makes Directions instant
+const routeCache = new Map();
+function getRoute(from, to, mode) {
+  const k = mode + ":" + from[0].toFixed(4) + "," + from[1].toFixed(4) + ">" + to[0].toFixed(5) + "," + to[1].toFixed(5);
+  if (routeCache.has(k)) return routeCache.get(k);
+  const p = fetchRoute(from, to, mode);
+  routeCache.set(k, p);
+  p.catch(() => routeCache.delete(k));
+  return p;
 }
 
 function fmtDist(m) {
@@ -483,241 +521,333 @@ function pretty(s) {
 
 // ---------- App ----------
 let curTheme = THEMES.rdr2;
+let styleReady = false;
 
-loadIcons().then(() => {
-  const map = new maplibregl.Map({
-    container: "map",
-    style: makeStyle(curTheme),
-    center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
-    zoom: 15
+// The map starts right away; icons are drawn in the background and handed to the map as they finish
+const map = new maplibregl.Map({
+  container: "map",
+  style: makeStyle(curTheme),
+  center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
+  zoom: 15
+});
+const badge = document.getElementById("badge");
+const $ = id => document.getElementById(id);
+
+function addIcons() {
+  Object.keys(iconData).forEach(k => {
+    try { if (!map.hasImage(k)) map.addImage(k, iconData[k], { pixelRatio: 2 }); } catch (e) {}
   });
-  const badge = document.getElementById("badge");
-
-  // Hand each icon to the map the moment a style asks for it
-  map.on("styleimagemissing", e => {
-    const d = iconData[e.id];
-    if (d && !map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: 2 });
-  });
-
-  // The route line and destination pin are added after every style load (theme switches wipe them)
-  function addDirectionLayers() {
-    const t = curTheme;
-    try {
-      if (!map.getSource("route")) map.addSource("route", { type: "geojson", data: ROUTE_FC });
-      if (!map.getSource("pin")) map.addSource("pin", { type: "geojson", data: PIN_FC });
-      const lay = { "line-cap": "round", "line-join": "round" };
-      if (!map.getLayer("route-case")) map.addLayer({ id: "route-case", type: "line", source: "route", layout: lay,
-        paint: { "line-color": t.routeCase, "line-width": 10, "line-opacity": 0.6 } });
-      if (!map.getLayer("route")) map.addLayer({ id: "route", type: "line", source: "route", layout: lay,
-        paint: { "line-color": t.route, "line-width": 5.5 } });
-      if (!map.getLayer("pin")) map.addLayer({ id: "pin", type: "circle", source: "pin",
-        paint: { "circle-radius": 9, "circle-color": t.pin, "circle-stroke-width": 3, "circle-stroke-color": "#ffffff" } });
-    } catch (e) { badge.textContent = "layer error: " + e.message; }
-  }
-  map.on("style.load", addDirectionLayers);
-
-  map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
-  const geo = new maplibregl.GeolocateControl({
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true, showUserHeading: true
-  });
-  map.addControl(geo, "top-right");
-  map.on("load", () => geo.trigger());
-
-  let userPos = null;
-  geo.on("geolocate", e => { userPos = [e.coords.longitude, e.coords.latitude]; });
-  function getUserPos() {
-    return new Promise((res, rej) => {
-      if (userPos) return res(userPos);
-      if (!navigator.geolocation) return rej(new Error("location not available"));
-      navigator.geolocation.getCurrentPosition(
-        p => { userPos = [p.coords.longitude, p.coords.latitude]; res(userPos); },
-        () => rej(new Error("allow location access, or type a start point")),
-        { enableHighAccuracy: true, timeout: 10000 });
-    });
-  }
-
-  // Badge: zoom level, places on screen, and any map error
-  function updateBadge() {
-    const z = map.getZoom();
-    let n = 0;
-    try { if (map.getLayer("poi")) n = map.queryRenderedFeatures({ layers: ["poi"] }).length; } catch (e) {}
-    badge.textContent = "zoom " + z.toFixed(1) + (z < 14 ? " (zoom in for places)" : " | places: " + n);
-  }
-  map.on("idle", updateBadge);
-  map.on("zoomend", updateBadge);
-  map.on("error", e => {
-    badge.textContent = "map error: " + String((e.error && e.error.message) || "unknown").slice(0, 120);
-  });
-
-  // ----- Search (free OpenStreetMap-based place search) -----
-  function attachSearch(input, list, onPick) {
-    let timer = null, ctrl = null;
-    input.addEventListener("input", () => {
-      clearTimeout(timer);
-      const v = input.value.trim();
-      if (v.length < 3) { list.innerHTML = ""; return; }
-      timer = setTimeout(async () => {
-        if (ctrl) ctrl.abort();
-        ctrl = new AbortController();
-        try {
-          const c = map.getCenter();
-          const url = "https://photon.komoot.io/api/?limit=6&lat=" + c.lat + "&lon=" + c.lng + "&q=" + encodeURIComponent(v);
-          const r = await fetch(url, { signal: ctrl.signal });
-          const j = await r.json();
-          list.innerHTML = "";
-          (j.features || []).forEach(f => {
-            const p = f.properties || {};
-            const street = [p.housenumber, p.street].filter(Boolean).join(" ");
-            const title = p.name || street || p.city || "Unnamed place";
-            const sub = [(p.name && street) ? street : "", p.city, p.state, p.country].filter(Boolean).join(", ");
-            const d = document.createElement("div");
-            const a = document.createElement("b"); a.textContent = title;
-            const b = document.createElement("div"); b.className = "ss"; b.textContent = sub;
-            d.appendChild(a); d.appendChild(b);
-            d.onclick = () => { list.innerHTML = ""; input.value = title; input.blur();
-              onPick({ name: title, sub: sub, lngLat: f.geometry.coordinates }); };
-            list.appendChild(d);
-          });
-          if (!list.children.length) list.textContent = "No results";
-        } catch (e) { if (e.name !== "AbortError") list.textContent = "Search unavailable right now"; }
-      }, 350);
-    });
-  }
-
-  // ----- Sheet: place card + directions -----
-  const $ = id => document.getElementById(id);
-  const sheet = $("sheet"), placeEl = $("place"), dirEl = $("dir");
-  const dfrom = $("dfrom"), dto = $("dto"), sum = $("sum"), stepsEl = $("steps");
-  let cand = null, dest = null, from = null, mode = "car", dirOpen = false;
-
-  function setPin(ll) {
-    PIN_FC = ll ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: ll } }] } : EMPTY_FC;
-    const s = map.getSource("pin"); if (s) s.setData(PIN_FC);
-  }
-  function setRoute(geom) {
-    ROUTE_FC = geom ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: geom }] } : EMPTY_FC;
-    const s = map.getSource("route"); if (s) s.setData(ROUTE_FC);
-  }
-
-  function showPlace(p, fly) {
-    cand = p; dirOpen = false;
-    $("pname").textContent = p.name;
-    $("psub").textContent = p.sub || "";
-    setPin(p.lngLat); setRoute(null);
-    if (fly) map.flyTo({ center: p.lngLat, zoom: Math.max(map.getZoom(), 16) });
-    placeEl.style.display = "block"; dirEl.style.display = "none"; sheet.style.display = "block";
-  }
-  function hideSheet() {
-    sheet.style.display = "none"; placeEl.style.display = "none"; dirEl.style.display = "none";
-    dirOpen = false; setPin(null); setRoute(null);
-  }
-
-  async function computeRoute() {
-    if (!dest) return;
-    sum.textContent = "Finding route...";
-    stepsEl.innerHTML = "";
-    setRoute(null);
-    try {
-      const start = from ? from.lngLat : await getUserPos();
-      const r = await fetchRoute(start, dest.lngLat, mode);
-      setRoute(r.geometry);
-      const b = new maplibregl.LngLatBounds();
-      r.geometry.coordinates.forEach(c => b.extend(c));
-      const bottom = Math.min(360, Math.round(window.innerHeight * 0.5));
-      map.fitBounds(b, { padding: { top: 90, bottom: bottom, left: 40, right: 40 }, maxZoom: 17 });
-      sum.textContent = fmtDur(r.duration) + " \u00B7 " + fmtDist(r.distance);
-      (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
-        const info = stepInfo(s);
-        const li = document.createElement("li");
-        const ar = document.createElement("span"); ar.className = "ar"; ar.textContent = info.arrow;
-        const tx = document.createElement("span"); tx.className = "tx"; tx.textContent = info.text;
-        const ds = document.createElement("span"); ds.className = "ds";
-        ds.textContent = (s.maneuver && s.maneuver.type === "arrive") ? "" : fmtDist(s.distance);
-        li.appendChild(ar); li.appendChild(tx); li.appendChild(ds);
-        li.onclick = () => { if (s.maneuver && s.maneuver.location) map.flyTo({ center: s.maneuver.location, zoom: 17 }); };
-        stepsEl.appendChild(li);
-      }));
-    } catch (e) {
-      sum.textContent = "Couldn't get directions: " + e.message;
+}
+map.on("styleimagemissing", e => {
+  const d = iconData[e.id];
+  if (d && !map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: 2 });
+});
+// Re-add the places layer so it re-lays out once icons that were missing at first have arrived
+function refreshPoi() {
+  try {
+    if (map.getLayer("poi")) {
+      const t = curTheme, c = poiColors(t);
+      map.removeLayer("poi");
+      map.addLayer(poiLayer(t, c[0], c[1]), "place");
     }
-  }
+  } catch (e) {}
+}
+function afterIcons() { if (styleReady) { addIcons(); refreshPoi(); } }
 
-  function openDirections() {
-    dest = cand; from = null; dirOpen = true;
-    dfrom.value = ""; dto.value = cand.name;
-    placeEl.style.display = "none"; dirEl.style.display = "block";
+// Route line, destination pin and live low-zoom places are added after every style load
+function addDynamicLayers() {
+  const t = curTheme;
+  try {
+    if (!map.getSource("route")) map.addSource("route", { type: "geojson", data: ROUTE_FC });
+    if (!map.getSource("pin")) map.addSource("pin", { type: "geojson", data: PIN_FC });
+    if (!map.getSource("lowpois")) map.addSource("lowpois", { type: "geojson", data: LOW_FC });
+    if (!map.getLayer("lowpoi")) map.addLayer({
+      id: "lowpoi", type: "symbol", source: "lowpois", minzoom: 12, maxzoom: 14,
+      layout: { "icon-image": ["concat", ["get", "icon"], t.iconSuffix || ""],
+                "icon-size": (t.iconSize || 0.55) * 0.85, "icon-padding": 6, "icon-allow-overlap": false }
+    });
+    const lay = { "line-cap": "round", "line-join": "round" };
+    if (!map.getLayer("route-case")) map.addLayer({ id: "route-case", type: "line", source: "route", layout: lay,
+      paint: { "line-color": t.routeCase, "line-width": 10, "line-opacity": 0.6 } });
+    if (!map.getLayer("route")) map.addLayer({ id: "route", type: "line", source: "route", layout: lay,
+      paint: { "line-color": t.route, "line-width": 5.5 } });
+    if (!map.getLayer("pin")) map.addLayer({ id: "pin", type: "circle", source: "pin",
+      paint: { "circle-radius": 9, "circle-color": t.pin, "circle-stroke-width": 3, "circle-stroke-color": "#ffffff" } });
+  } catch (e) { badge.textContent = "layer error: " + e.message; }
+}
+map.on("style.load", () => { styleReady = true; addIcons(); addDynamicLayers(); });
+
+// Icons for the current theme first, then the others when the browser is idle
+ensureVariant(curTheme.iconSuffix || "").then(() => {
+  afterIcons();
+  setTimeout(() => { ["", "-g", "-f"].forEach(ensureVariant); }, 400);
+});
+
+map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
+const geo = new maplibregl.GeolocateControl({
+  positionOptions: { enableHighAccuracy: true },
+  trackUserLocation: true, showUserHeading: true
+});
+map.addControl(geo, "top-right");
+map.on("load", () => geo.trigger());
+
+let userPos = null;
+geo.on("geolocate", e => { userPos = [e.coords.longitude, e.coords.latitude]; });
+function getUserPos() {
+  return new Promise((res, rej) => {
+    if (userPos) return res(userPos);
+    if (!navigator.geolocation) return rej(new Error("location not available"));
+    navigator.geolocation.getCurrentPosition(
+      p => { userPos = [p.coords.longitude, p.coords.latitude]; res(userPos); },
+      () => rej(new Error("allow location access, or type a start point")),
+      { enableHighAccuracy: true, timeout: 10000 });
+  });
+}
+
+// ----- Live places for zoom 12 to 14 (the map tiles have none below zoom 14) -----
+const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+let lowBox = null, lowTimer = null;
+function loadLowPlaces() {
+  const z = map.getZoom();
+  if (z < 12 || z >= 14.5) return;
+  const b = map.getBounds();
+  if (lowBox && b.getWest() >= lowBox.w && b.getEast() <= lowBox.e &&
+      b.getSouth() >= lowBox.s && b.getNorth() <= lowBox.n) return;
+  const px = (b.getEast() - b.getWest()) * 0.4, py = (b.getNorth() - b.getSouth()) * 0.4;
+  const box = { w: b.getWest() - px, e: b.getEast() + px, s: b.getSouth() - py, n: b.getNorth() + py };
+  const bb = box.s + "," + box.w + "," + box.n + "," + box.e;
+  const q = '[out:json][timeout:20];(' +
+    'nwr["shop"~"^(mall|department_store|supermarket)$"]["name"](' + bb + ');' +
+    'nwr["amenity"~"^(hospital|cinema|theatre|bus_station|marketplace)$"]["name"](' + bb + ');' +
+    'nwr["tourism"~"^(hotel|aquarium)$"]["name"](' + bb + ');' +
+    ');out center 250;';
+  const body = "data=" + encodeURIComponent(q);
+  firstOk(OVERPASS.map(u => fetchJson(u, 20000, {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body
+  }).then(j => { if (!j || !j.elements) throw new Error("bad response"); return j; })))
+    .then(j => {
+      const feats = [];
+      j.elements.forEach(el => {
+        const lon = el.lon != null ? el.lon : (el.center && el.center.lon);
+        const lat = el.lat != null ? el.lat : (el.center && el.center.lat);
+        const tags = el.tags || {};
+        if (lat == null || lon == null || !tags.name) return;
+        feats.push({ type: "Feature", geometry: { type: "Point", coordinates: [lon, lat] },
+          properties: { name: tags.name, icon: iconFor(tags), kind: tags.shop || tags.amenity || tags.tourism || "" } });
+      });
+      LOW_FC = { type: "FeatureCollection", features: feats };
+      const s = map.getSource("lowpois"); if (s) s.setData(LOW_FC);
+      lowBox = box;
+    })
+    .catch(() => {});
+}
+map.on("moveend", () => { clearTimeout(lowTimer); lowTimer = setTimeout(loadLowPlaces, 250); });
+map.on("load", loadLowPlaces);
+
+// Badge: zoom level, places on screen, and any map error
+function updateBadge() {
+  const z = map.getZoom();
+  let n = 0;
+  try {
+    const ls = ["poi", "lowpoi"].filter(id => map.getLayer(id));
+    if (ls.length) n = map.queryRenderedFeatures({ layers: ls }).length;
+  } catch (e) {}
+  badge.textContent = "zoom " + z.toFixed(1) + (z < 12 ? " (zoom in for places)" : " | places: " + n);
+}
+map.on("idle", updateBadge);
+map.on("zoomend", updateBadge);
+map.on("error", e => {
+  badge.textContent = "map error: " + String((e.error && e.error.message) || "unknown").slice(0, 120);
+});
+
+// ----- Search (free OpenStreetMap-based place search) -----
+function attachSearch(input, list, onPick) {
+  let timer = null, ctrl = null;
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    const v = input.value.trim();
+    if (v.length < 2) { list.innerHTML = ""; return; }
+    timer = setTimeout(async () => {
+      if (ctrl) ctrl.abort();
+      ctrl = new AbortController();
+      try {
+        const c = map.getCenter();
+        const url = "https://photon.komoot.io/api/?limit=6&lat=" + c.lat + "&lon=" + c.lng + "&q=" + encodeURIComponent(v);
+        const r = await fetch(url, { signal: ctrl.signal });
+        const j = await r.json();
+        list.innerHTML = "";
+        (j.features || []).forEach(f => {
+          const p = f.properties || {};
+          const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+          const title = p.name || street || p.city || "Unnamed place";
+          const sub = [(p.name && street) ? street : "", p.city, p.state, p.country].filter(Boolean).join(", ");
+          const d = document.createElement("div");
+          const a = document.createElement("b"); a.textContent = title;
+          const b = document.createElement("div"); b.className = "ss"; b.textContent = sub;
+          d.appendChild(a); d.appendChild(b);
+          d.onclick = () => { list.innerHTML = ""; input.value = title; input.blur();
+            onPick({ name: title, sub: sub, lngLat: f.geometry.coordinates }); };
+          list.appendChild(d);
+        });
+        if (!list.children.length) list.textContent = "No results";
+      } catch (e) { if (e.name !== "AbortError") list.textContent = "Search unavailable right now"; }
+    }, 200);
+  });
+}
+
+// ----- Sheet: place card + directions -----
+const sheet = $("sheet"), placeEl = $("place"), dirEl = $("dir");
+const dfrom = $("dfrom"), dto = $("dto"), sum = $("sum"), stepsEl = $("steps");
+let cand = null, dest = null, from = null, mode = "car", dirOpen = false, routeToken = 0;
+
+function setPin(ll) {
+  PIN_FC = ll ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: ll } }] } : EMPTY_FC;
+  const s = map.getSource("pin"); if (s) s.setData(PIN_FC);
+}
+function setRoute(geom) {
+  ROUTE_FC = geom ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: geom }] } : EMPTY_FC;
+  const s = map.getSource("route"); if (s) s.setData(ROUTE_FC);
+}
+function fitCoords(coords) {
+  const b = new maplibregl.LngLatBounds();
+  coords.forEach(c => b.extend(c));
+  const bottom = Math.min(360, Math.round(window.innerHeight * 0.5));
+  map.fitBounds(b, { padding: { top: 90, bottom: bottom, left: 40, right: 40 }, maxZoom: 17, duration: 600 });
+}
+
+function showPlace(p, fly) {
+  cand = p; dirOpen = false; routeToken++;
+  $("pname").textContent = p.name;
+  $("psub").textContent = p.sub || "";
+  setPin(p.lngLat); setRoute(null);
+  if (fly) map.flyTo({ center: p.lngLat, zoom: Math.max(map.getZoom(), 16) });
+  placeEl.style.display = "block"; dirEl.style.display = "none"; sheet.style.display = "block";
+  // Start working out the driving route now so Directions opens instantly
+  if (userPos) getRoute(userPos, p.lngLat, "car").catch(() => {});
+}
+function hideSheet() {
+  routeToken++;
+  sheet.style.display = "none"; placeEl.style.display = "none"; dirEl.style.display = "none";
+  dirOpen = false; setPin(null); setRoute(null);
+}
+
+async function computeRoute() {
+  if (!dest) return;
+  const token = ++routeToken;
+  sum.textContent = "Finding route...";
+  stepsEl.innerHTML = "";
+  setRoute(null);
+  try {
+    const start = from ? from.lngLat : await getUserPos();
+    if (token !== routeToken) return;
+    // Instant straight-line preview while the real route loads
+    setRoute({ type: "LineString", coordinates: [start, dest.lngLat] });
+    fitCoords([start, dest.lngLat]);
+    const r = await getRoute(start, dest.lngLat, mode);
+    if (token !== routeToken) return;
+    setRoute(r.geometry);
+    fitCoords(r.geometry.coordinates);
+    sum.textContent = fmtDur(r.duration) + " \u00B7 " + fmtDist(r.distance);
+    (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
+      const info = stepInfo(s);
+      const li = document.createElement("li");
+      const ar = document.createElement("span"); ar.className = "ar"; ar.textContent = info.arrow;
+      const tx = document.createElement("span"); tx.className = "tx"; tx.textContent = info.text;
+      const ds = document.createElement("span"); ds.className = "ds";
+      ds.textContent = (s.maneuver && s.maneuver.type === "arrive") ? "" : fmtDist(s.distance);
+      li.appendChild(ar); li.appendChild(tx); li.appendChild(ds);
+      li.onclick = () => { if (s.maneuver && s.maneuver.location) map.flyTo({ center: s.maneuver.location, zoom: 17 }); };
+      stepsEl.appendChild(li);
+    }));
+  } catch (e) {
+    if (token === routeToken) { setRoute(null); sum.textContent = "Couldn't get directions: " + (e.message || "try again"); }
+  }
+}
+
+function openDirections() {
+  dest = cand; from = null; dirOpen = true;
+  dfrom.value = ""; dto.value = cand.name;
+  placeEl.style.display = "none"; dirEl.style.display = "block";
+  computeRoute();
+}
+
+$("pdir").onclick = openDirections;
+$("pclose").onclick = hideSheet;
+$("dclose").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
+[...document.querySelectorAll("#modes button")].forEach(b => {
+  b.onclick = () => {
+    mode = b.dataset.m;
+    [...document.querySelectorAll("#modes button")].forEach(x => x.classList.toggle("on", x === b));
     computeRoute();
-  }
+  };
+});
 
-  $("pdir").onclick = openDirections;
-  $("pclose").onclick = hideSheet;
-  $("dclose").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
-  [...document.querySelectorAll("#modes button")].forEach(b => {
-    b.onclick = () => {
-      mode = b.dataset.m;
-      [...document.querySelectorAll("#modes button")].forEach(x => x.classList.toggle("on", x === b));
-      computeRoute();
-    };
-  });
+attachSearch($("q"), $("sugs"), p => showPlace(p, true));
+attachSearch(dfrom, $("sf"), p => { from = p; computeRoute(); });
+attachSearch(dto, $("st"), p => { dest = p; cand = p; setPin(p.lngLat); computeRoute(); });
+dfrom.addEventListener("input", () => { if (!dfrom.value.trim()) { from = null; $("sf").innerHTML = ""; } });
+dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null; computeRoute(); } });
 
-  attachSearch($("q"), $("sugs"), p => showPlace(p, true));
-  attachSearch(dfrom, $("sf"), p => { from = p; computeRoute(); });
-  attachSearch(dto, $("st"), p => { dest = p; cand = p; setPin(p.lngLat); computeRoute(); });
-  dfrom.addEventListener("input", () => { if (!dfrom.value.trim()) { from = null; $("sf").innerHTML = ""; } });
-  dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null; computeRoute(); } });
-
-  // Tap a place icon or any spot on the map to get a place card
-  map.on("click", e => {
-    if (dirOpen) return;
-    let fs = [];
-    try {
-      if (map.getLayer("poi")) {
-        const box = [[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]];
-        fs = map.queryRenderedFeatures(box, { layers: ["poi"] });
-      }
-    } catch (err) {}
-    if (fs.length) {
-      const f = fs[0], p = f.properties || {};
-      showPlace({ name: p.name || pretty(p.subclass), sub: pretty(p.subclass), lngLat: f.geometry.coordinates }, false);
-    } else {
-      const ll = [e.lngLat.lng, e.lngLat.lat];
-      showPlace({ name: "Dropped pin", sub: ll[1].toFixed(5) + ", " + ll[0].toFixed(5), lngLat: ll }, false);
+// Tap a place icon or any spot on the map to get a place card
+map.on("click", e => {
+  if (dirOpen) return;
+  let fs = [];
+  try {
+    const ls = ["poi", "lowpoi"].filter(id => map.getLayer(id));
+    if (ls.length) {
+      const box = [[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]];
+      fs = map.queryRenderedFeatures(box, { layers: ls });
     }
-  });
-
-  // Fortnite-style grid labels: letters A-H across the top, numbers 1-8 down the left
-  const gridEl = $("grid");
-  "ABCDEFGH".split("").forEach((c, i) => {
-    const s = document.createElement("span");
-    s.className = "gt"; s.textContent = c; s.style.left = (i * 12.5 + 6.25) + "%";
-    gridEl.appendChild(s);
-  });
-  for (let n = 1; n <= 8; n++) {
-    const s = document.createElement("span");
-    s.className = "gl"; s.textContent = n; s.style.top = ((n - 1) * 12.5 + 6.25) + "%";
-    gridEl.appendChild(s);
+  } catch (err) {}
+  if (fs.length) {
+    const f = fs[0], p = f.properties || {};
+    const kind = p.subclass || p.kind;
+    showPlace({ name: p.name || pretty(kind), sub: pretty(kind), lngLat: f.geometry.coordinates }, false);
+  } else {
+    const ll = [e.lngLat.lng, e.lngLat.lat];
+    showPlace({ name: "Dropped pin", sub: ll[1].toFixed(5) + ", " + ll[0].toFixed(5), lngLat: ll }, false);
   }
+});
 
-  const bar = $("themes");
-  const fx = $("fx");
-  function setTheme(key) {
-    const t = THEMES[key];
+// Fortnite-style grid labels: letters A-H across the top, numbers 1-8 down the left
+const gridEl = $("grid");
+"ABCDEFGH".split("").forEach((c, i) => {
+  const s = document.createElement("span");
+  s.className = "gt"; s.textContent = c; s.style.left = (i * 12.5 + 6.25) + "%";
+  gridEl.appendChild(s);
+});
+for (let n = 1; n <= 8; n++) {
+  const s = document.createElement("span");
+  s.className = "gl"; s.textContent = n; s.style.top = ((n - 1) * 12.5 + 6.25) + "%";
+  gridEl.appendChild(s);
+}
+
+// ----- Themes -----
+const bar = $("themes");
+const fx = $("fx");
+function applyThemeUI(key) {
+  const t = THEMES[key];
+  fx.style.background = t.fx;
+  gridEl.style.display = t.grid ? "block" : "none";
+  [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
+}
+function setTheme(key) {
+  const t = THEMES[key];
+  applyThemeUI(key);
+  // Make sure this theme's icons exist before the style switches (instant after the first load)
+  ensureVariant(t.iconSuffix || "").then(() => {
     curTheme = t;
     // diff:false = replace the whole style, so switching themes can't half-fail
     map.setStyle(makeStyle(t), { diff: false });
-    fx.style.background = t.fx;
-    gridEl.style.display = t.grid ? "block" : "none";
-    [...bar.children].forEach(b => b.classList.toggle("on", b.dataset.k === key));
-  }
-  Object.entries(THEMES).forEach(([k, t]) => {
-    const b = document.createElement("button");
-    b.textContent = t.label; b.dataset.k = k;
-    b.onclick = () => setTheme(k);
-    bar.appendChild(b);
   });
-  setTheme("rdr2");
+}
+Object.entries(THEMES).forEach(([k, t]) => {
+  const b = document.createElement("button");
+  b.textContent = t.label; b.dataset.k = k;
+  b.onclick = () => setTheme(k);
+  bar.appendChild(b);
 });
+applyThemeUI("rdr2");
 </script>
 </body>
 </html>
