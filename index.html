@@ -299,7 +299,38 @@ const FORT_COL = {
   pawn: "#2f80d8", barber: "#6b7886", info: "#6b7886", post: "#6b7886", theater: "#d9559b",
   general: "#2f80d8", butcher: "#2f80d8", trapper: "#2f80d8", gun: "#2f80d8"
 };
+// ---- GTA icon set (shapes redrawn after the GTA V blip sheet) ----
+const _sal = ICONS.find(i => i.key === "saloon");
+_sal.subs = ["bar", "pub", "biergarten"];                       // nightclubs now get the lips icon
+const _gen = ICONS.find(i => i.key === "general");
+_gen.subs = _gen.subs.filter(s => s !== "bank" && s !== "atm"); // banks get their own $ icon
 
+const LIPS = `<path d="M10 33c5-9 12-10 22-5 10-5 17-4 22 5-5 5-12 7-22 7S15 38 10 33z"/><path d="M12 36c4 8 11 11 20 11s16-3 20-11c-5 3-12 5-20 5s-15-2-20-5z"/>`;
+ICONS.push(
+  { key: "lips", subs: ["nightclub", "stripclub"], g: LIPS },
+  { key: "bank", subs: ["bank", "atm"],
+    g: `<text x="32" y="49" font-size="42" font-weight="bold" text-anchor="middle" font-family="Arial,Helvetica,sans-serif">$</text>` },
+  { key: "fuel", subs: ["fuel"],
+    g: `<path d="M16 18h22l8 8v28H16z"/><path d="M38 18l-5-6h-9l-3 6" fill="none" stroke="white" stroke-width="3.5" stroke-linejoin="round"/><rect x="22" y="27" width="12" height="7" fill="BG"/>` }
+);
+
+Object.assign(GTA_COL, { saloon: "#ffffff", lips: "#e23b3f", bank: "#7bd88f", fuel: "#ffb347",
+                         doctor: "#ffffff", barber: "#ffffff", gun: "#e23b3f" });
+Object.assign(GTA_G, {
+  // martini glass (bars)
+  saloon: { col: "#ffffff", g: `<path d="M10 14h44L34 36v12h11v5H19v-5h11V36z"/>` },
+  // red lips (nightclubs, strip clubs)
+  lips: { col: "#e23b3f", g: LIPS },
+  // solid scissors (barbers and salons)
+  barber: { col: "#ffffff",
+    g: `<path d="M17 12l5-2 18 26-6 4z"/><path d="M47 12l-5-2-18 26 6 4z"/><circle cx="21" cy="46" r="8"/><circle cx="21" cy="46" r="3.5" fill="BG"/><circle cx="43" cy="46" r="8"/><circle cx="43" cy="46" r="3.5" fill="BG"/>` },
+  // bold cross (doctors, hospitals, pharmacies)
+  doctor: { col: "#ffffff", g: `<path d="M24 10h16v14h14v16H40v14H24V40H10V24h14z"/>` },
+  // pistol (gun stores)
+  gun: { col: "#e23b3f",
+    g: `<rect x="8" y="17" width="44" height="12" rx="2"/><path d="M19 27h15l4 23H25z"/><rect x="40" y="29" width="5" height="9" rx="1"/>` }
+});
+Object.assign(FORT_COL, { lips: "#8a4fc0", bank: "#2f9e5f", fuel: "#e5642a" });
 function iconUri(i, v) {
   const og = v.s === "-g" ? GTA_G[i.key] : null;
   let disc = null, fill = "white", ring = "", grp = "";
