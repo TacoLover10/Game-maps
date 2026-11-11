@@ -61,6 +61,7 @@
   #sheet button { font: 600 14px -apple-system, sans-serif; }
   .x { background: none; border: none; color: #aaa; font-size: 18px; padding: 0 4px; }
   .primary { margin-top: 10px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: #3b82f6; color: #fff; }
+  #dstart { background: #1e9e55; font-size: 16px; }
   .fld { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
   .fld span { width: 38px; color: #aaa; }
   .fld input {
@@ -79,6 +80,39 @@
   #steps .ar { width: 22px; text-align: center; font-size: 18px; }
   #steps .tx { flex: 1; }
   #steps .ds { color: #aaa; white-space: nowrap; }
+
+  /* Navigation mode: banner at the top, trip bar at the bottom */
+  #nav {
+    display: none; position: absolute; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 8;
+    background: #14683a; color: #fff; border-radius: 16px; padding: 12px 14px;
+    font: 16px -apple-system, sans-serif; box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  }
+  #navmain { display: flex; align-items: center; gap: 14px; }
+  #navarrow { font-size: 46px; width: 58px; text-align: center; line-height: 1; }
+  #navdist { font-size: 30px; font-weight: 800; line-height: 1.1; }
+  #navtext { font-size: 17px; font-weight: 600; margin-top: 2px; }
+  #navthen {
+    display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.3);
+    font-size: 14px; opacity: .92;
+  }
+  #navbar {
+    display: none; position: absolute; left: 8px; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); z-index: 8;
+    background: rgba(20,20,20,.95); color: #fff; border-radius: 16px; padding: 10px 14px;
+    align-items: center; gap: 10px; font: 14px -apple-system, sans-serif;
+  }
+  #navbar .tm { font-size: 22px; font-weight: 800; color: #6ee7a0; }
+  #navbar .in { color: #bbb; font-size: 13px; margin-top: 2px; }
+  #navbar button { font: 600 14px -apple-system, sans-serif; border: none; border-radius: 12px; padding: 10px 14px; color: #fff; }
+  #mutebtn { background: rgba(255,255,255,.16); }
+  #endbtn { background: #e53935; font-size: 15px; }
+  #recenter {
+    display: none; position: absolute; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); z-index: 8;
+    background: #fff; color: #14683a; font: 700 14px -apple-system, sans-serif; padding: 10px 14px;
+    border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  }
+  body.nav #top, body.nav #badge, body.nav #themes, body.nav #sheet, body.nav #grid { display: none !important; }
+  body.nav #nav { display: block !important; }
+  body.nav #navbar { display: flex !important; }
 </style>
 </head>
 <body>
@@ -113,8 +147,24 @@
       <button data-m="bike">Bike</button>
     </div>
     <div id="sum"></div>
+    <button id="dstart" class="primary" style="display:none">Start</button>
     <ol id="steps"></ol>
   </div>
+</div>
+
+<div id="nav">
+  <div id="navmain">
+    <div id="navarrow"></div>
+    <div><div id="navdist"></div><div id="navtext"></div></div>
+  </div>
+  <div id="navthen"></div>
+</div>
+<div id="recenter">Re-center</div>
+<div id="navbar">
+  <div><div class="tm" id="navtime"></div><div class="in" id="navinfo"></div></div>
+  <span style="flex:1"></span>
+  <button id="mutebtn">Voice on</button>
+  <button id="endbtn">End</button>
 </div>
 
 <div id="themes"></div>
@@ -704,15 +754,20 @@ ensureVariant(curTheme.iconSuffix || "").then(() => {
 });
 
 map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
-const geo = new maplibregl.GeolocateControl({
-  positionOptions: { enableHighAccuracy: true },
-  trackUserLocation: true, showUserHeading: true
-});
-map.addControl(geo, "top-right");
+
+// The "my location" button. It is removed during navigation (which draws its own arrow) and added back after.
+let geo = null, userPos = null;
+function mountGeo() {
+  geo = new maplibregl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: true },
+    trackUserLocation: true, showUserHeading: true
+  });
+  map.addControl(geo, "top-right");
+  geo.on("geolocate", e => { userPos = [e.coords.longitude, e.coords.latitude]; });
+}
+mountGeo();
 map.on("load", () => geo.trigger());
 
-let userPos = null;
-geo.on("geolocate", e => { userPos = [e.coords.longitude, e.coords.latitude]; });
 function getUserPos() {
   return new Promise((res, rej) => {
     if (userPos) return res(userPos);
@@ -819,7 +874,7 @@ function attachSearch(input, list, onPick) {
 // ----- Sheet: place card + directions -----
 const sheet = $("sheet"), placeEl = $("place"), dirEl = $("dir");
 const dfrom = $("dfrom"), dto = $("dto"), sum = $("sum"), stepsEl = $("steps");
-let cand = null, dest = null, from = null, mode = "car", dirOpen = false, routeToken = 0;
+let cand = null, dest = null, from = null, mode = "car", dirOpen = false, routeToken = 0, curRoute = null;
 
 function setPin(ll) {
   PIN_FC = ll ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: ll } }] } : EMPTY_FC;
@@ -857,6 +912,8 @@ async function computeRoute() {
   const token = ++routeToken;
   sum.textContent = "Finding route...";
   stepsEl.innerHTML = "";
+  $("dstart").style.display = "none";
+  curRoute = null;
   setRoute(null);
   try {
     const start = from ? from.lngLat : await getUserPos();
@@ -866,9 +923,12 @@ async function computeRoute() {
     fitCoords([start, dest.lngLat]);
     const r = await getRoute(start, dest.lngLat, mode);
     if (token !== routeToken) return;
+    curRoute = r;
     setRoute(r.geometry);
     fitCoords(r.geometry.coordinates);
     sum.textContent = fmtDur(r.duration) + " \u00B7 " + fmtDist(r.distance);
+    // Navigation follows your GPS, so Start only shows when the route begins at your location
+    $("dstart").style.display = from ? "none" : "block";
     (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
       const info = stepInfo(s);
       const li = document.createElement("li");
@@ -892,6 +952,204 @@ function openDirections() {
   computeRoute();
 }
 
+// ----- Turn-by-turn navigation -----
+let navOn = false, follow = true, navWatch = null, navMarker = null, wakeLock = null, muted = false;
+let routeCoords = [], routeCum = [], routeScale = 1, navSteps = [], navSeg = 0, navTotal = 0;
+let said = {}, offCount = 0, rerouting = false, lastReroute = 0, arrived = false, lastHeading = 0;
+const PAD_ON = { top: 220, bottom: 0, left: 0, right: 0 };
+const PAD_OFF = { top: 0, bottom: 0, left: 0, right: 0 };
+
+function bearingOf(a, b) {
+  const r = Math.PI / 180, dl = (b[0] - a[0]) * r;
+  const y = Math.sin(dl) * Math.cos(b[1] * r);
+  const x = Math.cos(a[1] * r) * Math.sin(b[1] * r) - Math.sin(a[1] * r) * Math.cos(b[1] * r) * Math.cos(dl);
+  return (Math.atan2(y, x) / r + 360) % 360;
+}
+function spokenDist(m) {
+  const ft = m * 3.281;
+  if (ft < 1000) return Math.max(50, Math.round(ft / 50) * 50) + " feet";
+  const mi = m / 1609.344;
+  return (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " miles";
+}
+function lc(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+function speak(t) {
+  if (muted || !("speechSynthesis" in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(t);
+    u.rate = 1.02;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+async function lockScreen() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+function unlockScreen() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+document.addEventListener("visibilitychange", () => { if (navOn && document.visibilityState === "visible") lockScreen(); });
+
+// Prepare a route for tracking: cumulative distance along the line, and where each step starts
+function buildNav(r) {
+  routeCoords = r.geometry.coordinates;
+  routeCum = [0];
+  let tot = 0;
+  for (let i = 0; i < routeCoords.length - 1; i++) {
+    const a = routeCoords[i], b = routeCoords[i + 1];
+    const kx = Math.cos((a[1] + b[1]) / 2 * Math.PI / 180) * 111320;
+    tot += Math.hypot((b[0] - a[0]) * kx, (b[1] - a[1]) * 110540);
+    routeCum.push(tot);
+  }
+  routeScale = tot ? r.distance / tot : 1;
+  navTotal = r.distance;
+  navSeg = 0; said = {}; arrived = false;
+  navSteps = [];
+  let acc = 0;
+  (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
+    navSteps.push({ s: s, info: stepInfo(s), start: acc });
+    acc += s.distance;
+  }));
+}
+// Closest point on the route to where you are: distance along the route, and how far off it you are
+function project(ll) {
+  const kx = Math.cos(ll[1] * Math.PI / 180) * 111320, ky = 110540;
+  let best = { off: Infinity, along: 0, idx: navSeg };
+  const first = Math.max(0, navSeg - 3);
+  for (let i = first; i < routeCoords.length - 1; i++) {
+    const a = routeCoords[i], b = routeCoords[i + 1];
+    const ax = (a[0] - ll[0]) * kx, ay = (a[1] - ll[1]) * ky;
+    const dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * ky;
+    const len2 = dx * dx + dy * dy;
+    const t = len2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len2)) : 0;
+    const d = Math.hypot(ax + t * dx, ay + t * dy);
+    if (d < best.off) best = { off: d, along: (routeCum[i] + t * Math.sqrt(len2)) * routeScale, idx: i };
+    if (best.off < 60 && routeCum[i] - routeCum[first] > 2500) break;
+  }
+  return best;
+}
+
+function updateNav(along) {
+  const rem = Math.max(0, navTotal - along);
+  let i = 0;
+  while (i + 1 < navSteps.length && navSteps[i + 1].start <= along + 3) i++;
+  const nxt = navSteps[i + 1] || navSteps[i];
+  const toNext = Math.max(0, (navSteps[i + 1] ? navSteps[i + 1].start : navTotal) - along);
+  if (nxt) {
+    $("navarrow").textContent = nxt.info.arrow;
+    $("navdist").textContent = fmtDist(toNext);
+    $("navtext").textContent = nxt.info.text;
+    // "Then ..." line when the following maneuver is close
+    const th = navSteps[i + 2];
+    if (navSteps[i + 1] && th && (th.start - nxt.start) < 300) {
+      $("navthen").style.display = "block";
+      $("navthen").textContent = "Then " + th.info.arrow + "  " + th.info.text;
+    } else $("navthen").style.display = "none";
+    // Voice prompts
+    const idx = i + 1;
+    if (navSteps[idx]) {
+      const far = (navSteps[idx].start - navSteps[i].start) > 800;
+      if (!said[idx + "n"] && toNext <= 120) {
+        said[idx + "n"] = 1; said[idx + "f"] = 1;
+        speak("In " + spokenDist(toNext) + ", " + lc(nxt.info.text));
+      } else if (far && !said[idx + "f"] && toNext <= 500) {
+        said[idx + "f"] = 1;
+        speak("In " + spokenDist(toNext) + ", " + lc(nxt.info.text));
+      }
+    }
+  }
+  const remSec = curRoute ? curRoute.duration * (navTotal ? rem / navTotal : 0) : 0;
+  $("navtime").textContent = fmtDur(remSec);
+  const eta = new Date(Date.now() + remSec * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  $("navinfo").textContent = fmtDist(rem) + " \u00B7 arrive " + eta;
+  if (rem < 25 && !arrived) {
+    arrived = true;
+    $("navarrow").textContent = "\u2691";
+    $("navdist").textContent = "";
+    $("navtext").textContent = "You have arrived";
+    $("navthen").style.display = "none";
+    speak("You have arrived");
+    setTimeout(() => { if (navOn) endNav(); }, 6000);
+  }
+}
+
+async function reroute(ll) {
+  if (rerouting || Date.now() - lastReroute < 12000 || !dest) return;
+  rerouting = true; lastReroute = Date.now();
+  $("navtext").textContent = "Rerouting...";
+  speak("Rerouting");
+  try {
+    const r = await fetchRoute(ll, dest.lngLat, mode);
+    if (!navOn) return;
+    curRoute = r; setRoute(r.geometry); buildNav(r); offCount = 0;
+  } catch (e) {} finally { rerouting = false; }
+}
+
+function onPos(pos) {
+  if (!navOn) return;
+  const ll = [pos.coords.longitude, pos.coords.latitude];
+  userPos = ll;
+  let hd = pos.coords.heading;
+  const moving = pos.coords.speed == null || pos.coords.speed > 1;
+  if (hd != null && !isNaN(hd) && moving) lastHeading = hd;
+  if (navMarker) { navMarker.setLngLat(ll); navMarker.setRotation(lastHeading); }
+  const pr = project(ll);
+  if (pr.off > 60) { if (++offCount >= 3) reroute(ll); }
+  else { offCount = 0; navSeg = pr.idx; }
+  if (!rerouting) updateNav(pr.along);
+  if (follow) map.easeTo({ center: ll, bearing: lastHeading, padding: PAD_ON, duration: 900, easing: t => t });
+}
+
+function startNav() {
+  if (!curRoute || from) return;
+  navOn = true; follow = true; muted = muted || false;
+  buildNav(curRoute);
+  document.body.classList.add("nav");
+  // iPhones only allow speech after a tap, so unlock it here
+  try { speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance("")); } catch (e) {}
+  lockScreen();
+  try { map.removeControl(geo); } catch (e) {}
+  const el = document.createElement("div");
+  el.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24"><path d="M12 2l8 20-8-5-8 5z" fill="#3b82f6" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
+  const here = userPos || routeCoords[0];
+  lastHeading = routeCoords.length > 1 ? bearingOf(routeCoords[0], routeCoords[Math.min(3, routeCoords.length - 1)]) : 0;
+  navMarker = new maplibregl.Marker({ element: el, rotationAlignment: "map", pitchAlignment: "map", rotation: lastHeading })
+    .setLngLat(here).addTo(map);
+  map.easeTo({ center: here, zoom: 17, pitch: 55, bearing: lastHeading, padding: PAD_ON, duration: 1000 });
+  updateNav(0);
+  if (navSteps[0]) speak(navSteps[0].info.text);
+  navWatch = navigator.geolocation.watchPosition(onPos,
+    () => { $("navtext").textContent = "Waiting for GPS..."; },
+    { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
+}
+
+function endNav() {
+  navOn = false;
+  if (navWatch != null) navigator.geolocation.clearWatch(navWatch);
+  navWatch = null;
+  if (navMarker) navMarker.remove();
+  navMarker = null;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  unlockScreen();
+  document.body.classList.remove("nav");
+  $("recenter").style.display = "none";
+  map.easeTo({ pitch: 0, bearing: 0, padding: PAD_OFF, duration: 600 });
+  mountGeo();
+  setTimeout(() => { try { geo.trigger(); } catch (e) {} }, 400);
+}
+
+$("dstart").onclick = startNav;
+$("endbtn").onclick = endNav;
+$("mutebtn").onclick = () => {
+  muted = !muted;
+  $("mutebtn").textContent = muted ? "Voice off" : "Voice on";
+  if (muted) { try { speechSynthesis.cancel(); } catch (e) {} }
+};
+$("recenter").onclick = () => {
+  follow = true;
+  $("recenter").style.display = "none";
+  if (userPos) map.easeTo({ center: userPos, bearing: lastHeading, zoom: 17, pitch: 55, padding: PAD_ON, duration: 600 });
+};
+// Dragging the map stops it following you until you tap Re-center
+map.on("dragstart", e => {
+  if (navOn && e.originalEvent) { follow = false; $("recenter").style.display = "block"; }
+});
+
 $("pdir").onclick = openDirections;
 $("pclose").onclick = hideSheet;
 $("dclose").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
@@ -911,7 +1169,7 @@ dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null;
 
 // Tap a place icon or any spot on the map to get a place card
 map.on("click", e => {
-  if (dirOpen) return;
+  if (dirOpen || navOn) return;
   let fs = [];
   try {
     const ls = ["poi", "lowpoi"].filter(id => map.getLayer(id));
