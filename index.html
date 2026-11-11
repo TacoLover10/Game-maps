@@ -16,7 +16,7 @@
     position: absolute; font: 700 13px -apple-system, sans-serif; color: #fff;
     text-shadow: 0 0 3px #000, 0 0 3px #000;
   }
-  #grid .gt { top: calc(env(safe-area-inset-top, 0px) + 36px); transform: translateX(-50%); }
+  #grid .gt { top: calc(env(safe-area-inset-top, 0px) + 90px); transform: translateX(-50%); }
   #grid .gl { left: 6px; transform: translateY(-50%); }
   #themes {
     position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px);
@@ -28,17 +28,95 @@
   }
   #themes button.on { background: #fff; color: #000; }
   #badge {
-    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 5;
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 58px); z-index: 5;
     font: 600 12px -apple-system, sans-serif; color: #fff; background: rgba(0,0,0,.6);
     padding: 6px 10px; border-radius: 12px; max-width: 70%;
   }
+
+  /* Search bar */
+  #top { position: absolute; left: 10px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
+  #q {
+    width: 100%; box-sizing: border-box; font-size: 16px; padding: 12px 14px; border-radius: 24px;
+    border: none; outline: none; background: rgba(20,20,20,.92); color: #fff;
+    -webkit-appearance: none; appearance: none;
+  }
+  #q::placeholder { color: #aaa; }
+  .sugs { font: 14px -apple-system, sans-serif; color: #fff; }
+  #sugs { background: rgba(20,20,20,.95); border-radius: 12px; margin-top: 6px; overflow: hidden; }
+  #sugs:empty { display: none; }
+  .sugs > div { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,.12); }
+  .sugs > div:first-child { border-top: none; }
+  .sugs .ss { color: #aaa; font-size: 12px; margin-top: 2px; }
+
+  /* Bottom sheet (place card and directions) */
+  #sheet {
+    position: absolute; left: 8px; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 62px);
+    max-height: 52%; overflow-y: auto; z-index: 6; display: none;
+    background: rgba(20,20,20,.94); color: #fff; border-radius: 16px; padding: 12px 14px;
+    font: 14px -apple-system, sans-serif; -webkit-overflow-scrolling: touch;
+  }
+  #sheet .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  #sheet .t { font-weight: 700; font-size: 17px; }
+  #sheet .s { color: #aaa; margin-top: 2px; }
+  #sheet button { font: 600 14px -apple-system, sans-serif; }
+  .x { background: none; border: none; color: #aaa; font-size: 18px; padding: 0 4px; }
+  .primary { margin-top: 10px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: #3b82f6; color: #fff; }
+  .fld { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .fld span { width: 38px; color: #aaa; }
+  .fld input {
+    flex: 1; min-width: 0; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: none; outline: none;
+    background: rgba(255,255,255,.12); color: #fff; -webkit-appearance: none; appearance: none;
+  }
+  .fld input::placeholder { color: #bbb; }
+  #dir .sugs { background: rgba(255,255,255,.08); border-radius: 10px; margin-top: 4px; }
+  #dir .sugs:empty { display: none; }
+  #modes { display: flex; gap: 8px; margin-top: 10px; }
+  #modes button { flex: 1; padding: 9px; border-radius: 10px; border: 1px solid rgba(255,255,255,.3); background: none; color: #fff; }
+  #modes button.on { background: #fff; color: #000; }
+  #sum { margin-top: 10px; font-weight: 700; font-size: 16px; }
+  #steps { list-style: none; padding: 0; margin: 6px 0 0; }
+  #steps li { display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,.12); }
+  #steps .ar { width: 22px; text-align: center; font-size: 18px; }
+  #steps .tx { flex: 1; }
+  #steps .ds { color: #aaa; white-space: nowrap; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="fx"></div>
 <div id="grid"></div>
+
+<div id="top">
+  <input id="q" type="search" placeholder="Search places or addresses" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div id="sugs" class="sugs"></div>
+</div>
+
 <div id="badge">loading...</div>
+
+<div id="sheet">
+  <div id="place" style="display:none">
+    <div class="row">
+      <div><div id="pname" class="t"></div><div id="psub" class="s"></div></div>
+      <button id="pclose" class="x">&#10005;</button>
+    </div>
+    <button id="pdir" class="primary">Directions</button>
+  </div>
+  <div id="dir" style="display:none">
+    <div class="row"><b>Directions</b><button id="dclose" class="x">&#10005;</button></div>
+    <div class="fld"><span>From</span><input id="dfrom" placeholder="Your location" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div id="sf" class="sugs"></div>
+    <div class="fld"><span>To</span><input id="dto" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div id="st" class="sugs"></div>
+    <div id="modes">
+      <button data-m="car" class="on">Drive</button>
+      <button data-m="foot">Walk</button>
+      <button data-m="bike">Bike</button>
+    </div>
+    <div id="sum"></div>
+    <ol id="steps"></ol>
+  </div>
+</div>
+
 <div id="themes"></div>
 
 <script>
@@ -93,14 +171,12 @@ const ICONS = [
 //   "-f"  = colored circle badge with white glyph (Fortnite, generic map icons)
 const VARIANTS = [{ s: "" }, { s: "-g" }, { s: "-f" }];
 
-// GTA colors for the flat icons
 const GTA_COL = {
   saloon: "#e23b3f", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
   photo: "#ffffff", stagecoach: "#ffffff", tailor: "#f5e04a", doctor: "#ff7a7a", hotel: "#7fd0ff",
   pawn: "#bdbdbd", barber: "#ffffff", info: "#bdbdbd", post: "#ffffff", theater: "#ffffff",
   general: "#d8f0d8", butcher: "#ff7a7a", trapper: "#f5e04a", gun: "#e23b3f"
 };
-// GTA-only drawings that replace the default glyph (red lips, green $ house, white car)
 const GTA_G = {
   saloon: { col: "#e23b3f",
     g: `<path d="M12 33c5-8 11-9 20-5 9-4 15-3 20 5-5 4-11 6-20 6S17 37 12 33z"/><path d="M14 36c4 7 10 10 18 10s14-3 18-10c-5 3-11 4-18 4s-13-1-18-4z"/>` },
@@ -109,7 +185,6 @@ const GTA_G = {
   stagecoach: { col: "#ffffff",
     g: `<path d="M10 38l5-12c1-3 3-4 6-4h22c3 0 5 1 6 4l5 12v9h-6v-4H16v4h-6z"/><rect x="19" y="27" width="26" height="8" rx="2" fill="BG"/>` }
 };
-// Fortnite badge colors (generic category colors)
 const FORT_COL = {
   saloon: "#8a4fc0", food: "#f08a24", cafe: "#9c6b3f", stable: "#35557a", bait: "#6b7886",
   photo: "#d9559b", stagecoach: "#35557a", tailor: "#2f80d8", doctor: "#e04848", hotel: "#1fa7a0",
@@ -178,7 +253,6 @@ function poiLayer(t, textColor, haloColor) {
 }
 
 // ---------- Themes ----------
-// cv = landcover colors, lu = land-use colors (extra shades for different kinds of land)
 const GRID_BG =
   "linear-gradient(to right, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 12.5% 100%," +
   "linear-gradient(to bottom, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 100% 12.5%";
@@ -194,6 +268,7 @@ const THEMES = {
     roadCase: "#1c1c1c", road: "#c9c9c9", major: "#f1f1f1", rw: 1.9,
     text: "#e9e9e9", halo: "#161616", font: "Noto Sans Bold",
     iconSuffix: "-g", iconSize: 0.7,
+    route: "#d46bd9", routeCase: "#1a1a1a", pin: "#ff4d4d",
     fx: "none"
   },
   rdr2: {
@@ -203,6 +278,7 @@ const THEMES = {
     water: "#a29f8a", waterEdge: "#6f6c5b", waterRing: "#8d8a76",
     building: "#cf9f6e", buildingEdge: "#5a5046",
     ink: "#4a443d", waterText: "#7d7a66", font: "Noto Sans Bold",
+    route: "#9b2c2c", routeCase: "#3a2a18", pin: "#9b2c2c",
     fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(70,55,35,.25) 100%)," +
         "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .17  0 0 0 0 .1  0 0 0 .3 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>\")"
   },
@@ -219,6 +295,7 @@ const THEMES = {
     roadCase: "#8a7a5e", road: "#cdbb97", major: "#dccba6", rw: 0.7, ww: 6,
     text: "#ffffff", halo: "#16324a", ts: 1.15, font: "Noto Sans Bold",
     iconSuffix: "-f", iconSize: 0.55,
+    route: "#ffe14d", routeCase: "#16324a", pin: "#ff4fa3",
     grid: true,
     fx: GRID_BG
   }
@@ -337,20 +414,107 @@ function makeRdr2Style(t) {
   };
 }
 
+// ---------- Directions helpers ----------
+const EMPTY_FC = { type: "FeatureCollection", features: [] };
+let ROUTE_FC = EMPTY_FC;
+let PIN_FC = EMPTY_FC;
+
+// Free public routing (OpenStreetMap-based). Car, bike and foot profiles.
+const PROFILES = { car: "routed-car", bike: "routed-bike", foot: "routed-foot" };
+async function fetchRoute(from, to, mode) {
+  const coords = from[0] + "," + from[1] + ";" + to[0] + "," + to[1];
+  const q = "?overview=full&geometries=geojson&steps=true";
+  const urls = ["https://routing.openstreetmap.de/" + PROFILES[mode] + "/route/v1/driving/" + coords + q];
+  if (mode === "car") urls.push("https://router.project-osrm.org/route/v1/driving/" + coords + q);
+  let lastErr = "no route found";
+  for (const u of urls) {
+    try {
+      const r = await fetch(u);
+      const j = await r.json();
+      if (j.code === "Ok" && j.routes && j.routes.length) return j.routes[0];
+      lastErr = j.message || j.code || "no route found";
+    } catch (e) { lastErr = e.message || "network error"; }
+  }
+  throw new Error(lastErr);
+}
+
+function fmtDist(m) {
+  const mi = m / 1609.344;
+  if (mi < 0.1) return Math.max(10, Math.round(m * 3.281 / 10) * 10) + " ft";
+  return (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " mi";
+}
+function fmtDur(s) {
+  const m = Math.round(s / 60);
+  if (m < 60) return Math.max(1, m) + " min";
+  return Math.floor(m / 60) + " h " + (m % 60) + " min";
+}
+const ARROWS = { "left": "\u2190", "right": "\u2192", "slight left": "\u2196", "slight right": "\u2197",
+                 "sharp left": "\u2199", "sharp right": "\u2198", "straight": "\u2191", "uturn": "\u21A9" };
+function stepInfo(s) {
+  const m = s.maneuver || {};
+  const mod = m.modifier || "";
+  const road = s.name ? " onto " + s.name : "";
+  const on = s.name ? " on " + s.name : "";
+  let text = "Continue" + road, arrow = ARROWS[mod] || "\u2191";
+  switch (m.type) {
+    case "depart": {
+      const dirs = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"];
+      text = "Head " + (m.bearing_after != null ? dirs[Math.round(m.bearing_after / 45) % 8] : "out") + on;
+      arrow = "\u2191"; break;
+    }
+    case "arrive": text = "Arrive at your destination" + (mod && mod !== "straight" ? " on the " + mod : ""); arrow = "\u2691"; break;
+    case "turn": text = "Turn " + mod + road; break;
+    case "end of road": text = "At the end of the road turn " + mod + road; break;
+    case "merge": text = "Merge" + (mod ? " " + mod : "") + road; break;
+    case "on ramp": text = "Take the ramp" + road; break;
+    case "off ramp": text = "Take the exit" + road; break;
+    case "fork": text = "Keep " + (mod || "straight") + " at the fork" + road; break;
+    case "roundabout": case "rotary": text = "Enter the roundabout" + (m.exit ? ", take exit " + m.exit : "") + road; arrow = "\u21BB"; break;
+    case "roundabout turn": text = "At the roundabout turn " + mod + road; break;
+    case "continue": text = "Continue " + (mod || "straight") + on; break;
+    default: text = "Continue" + road;
+  }
+  return { text, arrow };
+}
+function pretty(s) {
+  s = String(s || "").replace(/_/g, " ");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // ---------- App ----------
+let curTheme = THEMES.rdr2;
+
 loadIcons().then(() => {
   const map = new maplibregl.Map({
     container: "map",
-    style: makeStyle(THEMES.rdr2),
+    style: makeStyle(curTheme),
     center: [-121.9886, 37.5485], // Fremont, CA; GPS will take over
     zoom: 15
   });
+  const badge = document.getElementById("badge");
 
   // Hand each icon to the map the moment a style asks for it
   map.on("styleimagemissing", e => {
     const d = iconData[e.id];
     if (d && !map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: 2 });
   });
+
+  // The route line and destination pin are added after every style load (theme switches wipe them)
+  function addDirectionLayers() {
+    const t = curTheme;
+    try {
+      if (!map.getSource("route")) map.addSource("route", { type: "geojson", data: ROUTE_FC });
+      if (!map.getSource("pin")) map.addSource("pin", { type: "geojson", data: PIN_FC });
+      const lay = { "line-cap": "round", "line-join": "round" };
+      if (!map.getLayer("route-case")) map.addLayer({ id: "route-case", type: "line", source: "route", layout: lay,
+        paint: { "line-color": t.routeCase, "line-width": 10, "line-opacity": 0.6 } });
+      if (!map.getLayer("route")) map.addLayer({ id: "route", type: "line", source: "route", layout: lay,
+        paint: { "line-color": t.route, "line-width": 5.5 } });
+      if (!map.getLayer("pin")) map.addLayer({ id: "pin", type: "circle", source: "pin",
+        paint: { "circle-radius": 9, "circle-color": t.pin, "circle-stroke-width": 3, "circle-stroke-color": "#ffffff" } });
+    } catch (e) { badge.textContent = "layer error: " + e.message; }
+  }
+  map.on("style.load", addDirectionLayers);
 
   map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
   const geo = new maplibregl.GeolocateControl({
@@ -360,8 +524,20 @@ loadIcons().then(() => {
   map.addControl(geo, "top-right");
   map.on("load", () => geo.trigger());
 
+  let userPos = null;
+  geo.on("geolocate", e => { userPos = [e.coords.longitude, e.coords.latitude]; });
+  function getUserPos() {
+    return new Promise((res, rej) => {
+      if (userPos) return res(userPos);
+      if (!navigator.geolocation) return rej(new Error("location not available"));
+      navigator.geolocation.getCurrentPosition(
+        p => { userPos = [p.coords.longitude, p.coords.latitude]; res(userPos); },
+        () => rej(new Error("allow location access, or type a start point")),
+        { enableHighAccuracy: true, timeout: 10000 });
+    });
+  }
+
   // Badge: zoom level, places on screen, and any map error
-  const badge = document.getElementById("badge");
   function updateBadge() {
     const z = map.getZoom();
     let n = 0;
@@ -374,18 +550,144 @@ loadIcons().then(() => {
     badge.textContent = "map error: " + String((e.error && e.error.message) || "unknown").slice(0, 120);
   });
 
-  // Tap a place icon to see its name
-  map.on("click", "poi", e => {
-    const f = e.features && e.features[0];
-    if (!f) return;
-    new maplibregl.Popup({ closeButton: false })
-      .setLngLat(f.geometry.coordinates)
-      .setText(f.properties.name || f.properties.subclass)
-      .addTo(map);
+  // ----- Search (free OpenStreetMap-based place search) -----
+  function attachSearch(input, list, onPick) {
+    let timer = null, ctrl = null;
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      const v = input.value.trim();
+      if (v.length < 3) { list.innerHTML = ""; return; }
+      timer = setTimeout(async () => {
+        if (ctrl) ctrl.abort();
+        ctrl = new AbortController();
+        try {
+          const c = map.getCenter();
+          const url = "https://photon.komoot.io/api/?limit=6&lat=" + c.lat + "&lon=" + c.lng + "&q=" + encodeURIComponent(v);
+          const r = await fetch(url, { signal: ctrl.signal });
+          const j = await r.json();
+          list.innerHTML = "";
+          (j.features || []).forEach(f => {
+            const p = f.properties || {};
+            const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+            const title = p.name || street || p.city || "Unnamed place";
+            const sub = [(p.name && street) ? street : "", p.city, p.state, p.country].filter(Boolean).join(", ");
+            const d = document.createElement("div");
+            const a = document.createElement("b"); a.textContent = title;
+            const b = document.createElement("div"); b.className = "ss"; b.textContent = sub;
+            d.appendChild(a); d.appendChild(b);
+            d.onclick = () => { list.innerHTML = ""; input.value = title; input.blur();
+              onPick({ name: title, sub: sub, lngLat: f.geometry.coordinates }); };
+            list.appendChild(d);
+          });
+          if (!list.children.length) list.textContent = "No results";
+        } catch (e) { if (e.name !== "AbortError") list.textContent = "Search unavailable right now"; }
+      }, 350);
+    });
+  }
+
+  // ----- Sheet: place card + directions -----
+  const $ = id => document.getElementById(id);
+  const sheet = $("sheet"), placeEl = $("place"), dirEl = $("dir");
+  const dfrom = $("dfrom"), dto = $("dto"), sum = $("sum"), stepsEl = $("steps");
+  let cand = null, dest = null, from = null, mode = "car", dirOpen = false;
+
+  function setPin(ll) {
+    PIN_FC = ll ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: ll } }] } : EMPTY_FC;
+    const s = map.getSource("pin"); if (s) s.setData(PIN_FC);
+  }
+  function setRoute(geom) {
+    ROUTE_FC = geom ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: geom }] } : EMPTY_FC;
+    const s = map.getSource("route"); if (s) s.setData(ROUTE_FC);
+  }
+
+  function showPlace(p, fly) {
+    cand = p; dirOpen = false;
+    $("pname").textContent = p.name;
+    $("psub").textContent = p.sub || "";
+    setPin(p.lngLat); setRoute(null);
+    if (fly) map.flyTo({ center: p.lngLat, zoom: Math.max(map.getZoom(), 16) });
+    placeEl.style.display = "block"; dirEl.style.display = "none"; sheet.style.display = "block";
+  }
+  function hideSheet() {
+    sheet.style.display = "none"; placeEl.style.display = "none"; dirEl.style.display = "none";
+    dirOpen = false; setPin(null); setRoute(null);
+  }
+
+  async function computeRoute() {
+    if (!dest) return;
+    sum.textContent = "Finding route...";
+    stepsEl.innerHTML = "";
+    setRoute(null);
+    try {
+      const start = from ? from.lngLat : await getUserPos();
+      const r = await fetchRoute(start, dest.lngLat, mode);
+      setRoute(r.geometry);
+      const b = new maplibregl.LngLatBounds();
+      r.geometry.coordinates.forEach(c => b.extend(c));
+      const bottom = Math.min(360, Math.round(window.innerHeight * 0.5));
+      map.fitBounds(b, { padding: { top: 90, bottom: bottom, left: 40, right: 40 }, maxZoom: 17 });
+      sum.textContent = fmtDur(r.duration) + " \u00B7 " + fmtDist(r.distance);
+      (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
+        const info = stepInfo(s);
+        const li = document.createElement("li");
+        const ar = document.createElement("span"); ar.className = "ar"; ar.textContent = info.arrow;
+        const tx = document.createElement("span"); tx.className = "tx"; tx.textContent = info.text;
+        const ds = document.createElement("span"); ds.className = "ds";
+        ds.textContent = (s.maneuver && s.maneuver.type === "arrive") ? "" : fmtDist(s.distance);
+        li.appendChild(ar); li.appendChild(tx); li.appendChild(ds);
+        li.onclick = () => { if (s.maneuver && s.maneuver.location) map.flyTo({ center: s.maneuver.location, zoom: 17 }); };
+        stepsEl.appendChild(li);
+      }));
+    } catch (e) {
+      sum.textContent = "Couldn't get directions: " + e.message;
+    }
+  }
+
+  function openDirections() {
+    dest = cand; from = null; dirOpen = true;
+    dfrom.value = ""; dto.value = cand.name;
+    placeEl.style.display = "none"; dirEl.style.display = "block";
+    computeRoute();
+  }
+
+  $("pdir").onclick = openDirections;
+  $("pclose").onclick = hideSheet;
+  $("dclose").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
+  [...document.querySelectorAll("#modes button")].forEach(b => {
+    b.onclick = () => {
+      mode = b.dataset.m;
+      [...document.querySelectorAll("#modes button")].forEach(x => x.classList.toggle("on", x === b));
+      computeRoute();
+    };
+  });
+
+  attachSearch($("q"), $("sugs"), p => showPlace(p, true));
+  attachSearch(dfrom, $("sf"), p => { from = p; computeRoute(); });
+  attachSearch(dto, $("st"), p => { dest = p; cand = p; setPin(p.lngLat); computeRoute(); });
+  dfrom.addEventListener("input", () => { if (!dfrom.value.trim()) { from = null; $("sf").innerHTML = ""; } });
+  dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null; computeRoute(); } });
+
+  // Tap a place icon or any spot on the map to get a place card
+  map.on("click", e => {
+    if (dirOpen) return;
+    let fs = [];
+    try {
+      if (map.getLayer("poi")) {
+        const box = [[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]];
+        fs = map.queryRenderedFeatures(box, { layers: ["poi"] });
+      }
+    } catch (err) {}
+    if (fs.length) {
+      const f = fs[0], p = f.properties || {};
+      showPlace({ name: p.name || pretty(p.subclass), sub: pretty(p.subclass), lngLat: f.geometry.coordinates }, false);
+    } else {
+      const ll = [e.lngLat.lng, e.lngLat.lat];
+      showPlace({ name: "Dropped pin", sub: ll[1].toFixed(5) + ", " + ll[0].toFixed(5), lngLat: ll }, false);
+    }
   });
 
   // Fortnite-style grid labels: letters A-H across the top, numbers 1-8 down the left
-  const gridEl = document.getElementById("grid");
+  const gridEl = $("grid");
   "ABCDEFGH".split("").forEach((c, i) => {
     const s = document.createElement("span");
     s.className = "gt"; s.textContent = c; s.style.left = (i * 12.5 + 6.25) + "%";
@@ -397,10 +699,11 @@ loadIcons().then(() => {
     gridEl.appendChild(s);
   }
 
-  const bar = document.getElementById("themes");
-  const fx = document.getElementById("fx");
+  const bar = $("themes");
+  const fx = $("fx");
   function setTheme(key) {
     const t = THEMES[key];
+    curTheme = t;
     // diff:false = replace the whole style, so switching themes can't half-fail
     map.setStyle(makeStyle(t), { diff: false });
     fx.style.background = t.fx;
