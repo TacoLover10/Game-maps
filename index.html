@@ -16,27 +16,39 @@
     position: absolute; font: 700 13px -apple-system, sans-serif; color: #fff;
     text-shadow: 0 0 3px #000, 0 0 3px #000;
   }
-  #grid .gt { top: calc(env(safe-area-inset-top, 0px) + 90px); transform: translateX(-50%); }
+  #grid .gt { top: calc(env(safe-area-inset-top, 0px) + 96px); transform: translateX(-50%); }
   #grid .gl { left: 6px; transform: translateY(-50%); }
-  #themes {
-    position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px);
-    display: flex; gap: 8px; justify-content: center; padding: 12px; z-index: 5;
-  }
-  #themes button {
-    font: 600 14px -apple-system, sans-serif; padding: 10px 16px; border-radius: 20px;
-    border: 2px solid #fff; background: rgba(0,0,0,.65); color: #fff;
-  }
-  #themes button.on { background: #fff; color: #000; }
   #badge {
-    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 58px); z-index: 5;
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 5;
     font: 600 12px -apple-system, sans-serif; color: #fff; background: rgba(0,0,0,.6);
     padding: 6px 10px; border-radius: 12px; max-width: 70%;
   }
 
+  /* Menu button (three lines) and dropdown */
+  #menubtn {
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 9;
+    width: 46px; height: 46px; border-radius: 23px; border: none; background: rgba(20,20,20,.92);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; padding: 0;
+  }
+  #menubtn span { display: block; width: 20px; height: 2.5px; border-radius: 2px; background: #fff; }
+  #menu {
+    display: none; position: absolute; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 9;
+    min-width: 190px; background: rgba(20,20,20,.97); border-radius: 14px; padding: 6px;
+    font: 14px -apple-system, sans-serif; color: #fff; box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  }
+  #menu.open { display: block; }
+  #menu .mh { padding: 8px 12px 4px; color: #999; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  #themes button {
+    display: block; width: 100%; text-align: left; background: none; border: none; color: #fff;
+    font: 600 16px -apple-system, sans-serif; padding: 12px; border-radius: 10px;
+  }
+  #themes button.on { background: rgba(255,255,255,.14); }
+  #themes button.on::after { content: "\2713"; float: right; color: #6ee7a0; }
+
   /* Search bar */
-  #top { position: absolute; left: 10px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
+  #top { position: absolute; left: 64px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
   #q {
-    width: 100%; box-sizing: border-box; font-size: 16px; padding: 12px 14px; border-radius: 24px;
+    width: 100%; box-sizing: border-box; font-size: 16px; padding: 13px 14px; border-radius: 24px;
     border: none; outline: none; background: rgba(20,20,20,.92); color: #fff;
     -webkit-appearance: none; appearance: none;
   }
@@ -48,38 +60,72 @@
   .sugs > div:first-child { border-top: none; }
   .sugs .ss { color: #aaa; font-size: 12px; margin-top: 2px; }
 
-  /* Bottom sheet (place card and directions) */
+  /* Place card (bottom) */
   #sheet {
-    position: absolute; left: 8px; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 62px);
-    max-height: 52%; overflow-y: auto; z-index: 6; display: none;
+    position: absolute; left: 8px; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    z-index: 6; display: none;
     background: rgba(20,20,20,.94); color: #fff; border-radius: 16px; padding: 12px 14px;
-    font: 14px -apple-system, sans-serif; -webkit-overflow-scrolling: touch;
+    font: 14px -apple-system, sans-serif;
   }
   #sheet .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
   #sheet .t { font-weight: 700; font-size: 17px; }
   #sheet .s { color: #aaa; margin-top: 2px; }
-  #sheet button { font: 600 14px -apple-system, sans-serif; }
   .x { background: none; border: none; color: #aaa; font-size: 18px; padding: 0 4px; }
-  .primary { margin-top: 10px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: #3b82f6; color: #fff; }
-  #dstart { background: #1e9e55; font-size: 16px; }
-  .fld { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-  .fld span { width: 38px; color: #aaa; }
-  .fld input {
+  .primary {
+    margin-top: 10px; width: 100%; padding: 12px; border: none; border-radius: 24px;
+    background: #3b82f6; color: #fff; font: 700 16px -apple-system, sans-serif;
+  }
+
+  /* Directions: compact From/To card at the top, trip card at the bottom */
+  #dtop {
+    display: none; position: absolute; left: 10px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7;
+    background: rgba(20,20,20,.95); border-radius: 16px; padding: 8px 10px; gap: 8px; align-items: flex-start;
+    font: 14px -apple-system, sans-serif; color: #fff;
+  }
+  #dback { background: none; border: none; color: #fff; font-size: 24px; padding: 6px 4px 0 0; }
+  #dflds { flex: 1; min-width: 0; }
+  .drow { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .drow input {
     flex: 1; min-width: 0; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: none; outline: none;
     background: rgba(255,255,255,.12); color: #fff; -webkit-appearance: none; appearance: none;
   }
-  .fld input::placeholder { color: #bbb; }
-  #dir .sugs { background: rgba(255,255,255,.08); border-radius: 10px; margin-top: 4px; }
-  #dir .sugs:empty { display: none; }
-  #modes { display: flex; gap: 8px; margin-top: 10px; }
-  #modes button { flex: 1; padding: 9px; border-radius: 10px; border: 1px solid rgba(255,255,255,.3); background: none; color: #fff; }
-  #modes button.on { background: #fff; color: #000; }
-  #sum { margin-top: 10px; font-weight: 700; font-size: 16px; }
-  #steps { list-style: none; padding: 0; margin: 6px 0 0; }
+  .drow input::placeholder { color: #bbb; }
+  .dot { width: 10px; height: 10px; border-radius: 5px; flex: none; }
+  .dot.a { border: 3px solid #3b82f6; box-sizing: border-box; }
+  .dot.b { background: #ef4444; }
+  #dflds .sugs { background: rgba(255,255,255,.08); border-radius: 10px; margin: 2px 0 4px; }
+  #dflds .sugs:empty { display: none; }
+
+  #dsheet {
+    display: none; position: absolute; left: 8px; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    z-index: 6; background: rgba(20,20,20,.95); color: #fff; border-radius: 18px; padding: 12px 14px 14px;
+    font: 14px -apple-system, sans-serif;
+  }
+  #modes { display: flex; gap: 8px; }
+  #modes button {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 4px;
+    border-radius: 20px; border: 1px solid rgba(255,255,255,.28); background: none; color: #fff;
+    font: 600 14px -apple-system, sans-serif;
+  }
+  #modes button.on { background: #fff; color: #000; border-color: #fff; }
+  #modes .mi { font-size: 17px; }
+  #sum { margin-top: 10px; font-size: 22px; font-weight: 800; color: #6ee7a0; }
+  #dbtns { display: flex; gap: 8px; margin-top: 10px; }
+  #dbtns .primary { margin-top: 0; width: auto; flex: 1; background: #1e9e55; }
+  #dsteps {
+    padding: 12px 18px; border-radius: 24px; border: 1px solid rgba(255,255,255,.3); background: none; color: #fff;
+    font: 600 15px -apple-system, sans-serif;
+  }
+  #steps { display: none; list-style: none; padding: 0; margin: 8px 0 0; }
+  #steps.open { display: block; max-height: 34vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   #steps li { display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,.12); }
   #steps .ar { width: 22px; text-align: center; font-size: 18px; }
   #steps .tx { flex: 1; }
   #steps .ds { color: #aaa; white-space: nowrap; }
+
+  body.dir #top, body.dir #menubtn, body.dir #menu, body.dir #badge, body.dir #sheet { display: none !important; }
+  body.dir #dtop { display: flex; }
+  body.dir #dsheet { display: block; }
 
   /* Navigation mode: banner at the top, trip bar at the bottom */
   #nav {
@@ -110,7 +156,8 @@
     background: #fff; color: #14683a; font: 700 14px -apple-system, sans-serif; padding: 10px 14px;
     border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
   }
-  body.nav #top, body.nav #badge, body.nav #themes, body.nav #sheet, body.nav #grid { display: none !important; }
+  body.nav #top, body.nav #menubtn, body.nav #menu, body.nav #badge, body.nav #sheet,
+  body.nav #dtop, body.nav #dsheet, body.nav #grid { display: none !important; }
   body.nav #nav { display: block !important; }
   body.nav #navbar { display: flex !important; }
 </style>
@@ -120,6 +167,12 @@
 <div id="fx"></div>
 <div id="grid"></div>
 
+<button id="menubtn" aria-label="Menu"><span></span><span></span><span></span></button>
+<div id="menu">
+  <div class="mh">Map style</div>
+  <div id="themes"></div>
+</div>
+
 <div id="top">
   <input id="q" type="search" placeholder="Search places or addresses" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div id="sugs" class="sugs"></div>
@@ -128,28 +181,35 @@
 <div id="badge">loading...</div>
 
 <div id="sheet">
-  <div id="place" style="display:none">
-    <div class="row">
-      <div><div id="pname" class="t"></div><div id="psub" class="s"></div></div>
-      <button id="pclose" class="x">&#10005;</button>
-    </div>
-    <button id="pdir" class="primary">Directions</button>
+  <div class="row">
+    <div><div id="pname" class="t"></div><div id="psub" class="s"></div></div>
+    <button id="pclose" class="x">&#10005;</button>
   </div>
-  <div id="dir" style="display:none">
-    <div class="row"><b>Directions</b><button id="dclose" class="x">&#10005;</button></div>
-    <div class="fld"><span>From</span><input id="dfrom" placeholder="Your location" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <button id="pdir" class="primary">Directions</button>
+</div>
+
+<div id="dtop">
+  <button id="dback" aria-label="Back">&#8592;</button>
+  <div id="dflds">
+    <div class="drow"><i class="dot a"></i><input id="dfrom" placeholder="Your location" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
     <div id="sf" class="sugs"></div>
-    <div class="fld"><span>To</span><input id="dto" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="drow"><i class="dot b"></i><input id="dto" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
     <div id="st" class="sugs"></div>
-    <div id="modes">
-      <button data-m="car" class="on">Drive</button>
-      <button data-m="foot">Walk</button>
-      <button data-m="bike">Bike</button>
-    </div>
-    <div id="sum"></div>
-    <button id="dstart" class="primary" style="display:none">Start</button>
-    <ol id="steps"></ol>
   </div>
+</div>
+
+<div id="dsheet">
+  <div id="modes">
+    <button data-m="car" class="on"><span class="mi">&#128663;</span><b id="t-car">&ndash;</b></button>
+    <button data-m="foot"><span class="mi">&#128694;</span><b id="t-foot">&ndash;</b></button>
+    <button data-m="bike"><span class="mi">&#128690;</span><b id="t-bike">&ndash;</b></button>
+  </div>
+  <div id="sum"></div>
+  <div id="dbtns">
+    <button id="dstart" class="primary" style="display:none">Start</button>
+    <button id="dsteps">Steps</button>
+  </div>
+  <ol id="steps"></ol>
 </div>
 
 <div id="nav">
@@ -166,8 +226,6 @@
   <button id="mutebtn">Voice on</button>
   <button id="endbtn">End</button>
 </div>
-
-<div id="themes"></div>
 
 <script>
 window.addEventListener("error", e => { document.getElementById("badge").textContent = "JS error: " + e.message; });
@@ -871,11 +929,13 @@ function attachSearch(input, list, onPick) {
   });
 }
 
-// ----- Sheet: place card + directions -----
-const sheet = $("sheet"), placeEl = $("place"), dirEl = $("dir");
+// ----- Place card and directions -----
+const sheet = $("sheet");
 const dfrom = $("dfrom"), dto = $("dto"), sum = $("sum"), stepsEl = $("steps");
 let cand = null, dest = null, from = null, mode = "car", dirOpen = false, routeToken = 0, curRoute = null;
+const MODES = ["car", "foot", "bike"];
 
+function setDirUI(on) { document.body.classList.toggle("dir", on); }
 function setPin(ll) {
   PIN_FC = ll ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: ll } }] } : EMPTY_FC;
   const s = map.getSource("pin"); if (s) s.setData(PIN_FC);
@@ -887,29 +947,47 @@ function setRoute(geom) {
 function fitCoords(coords) {
   const b = new maplibregl.LngLatBounds();
   coords.forEach(c => b.extend(c));
-  const bottom = Math.min(360, Math.round(window.innerHeight * 0.5));
-  map.fitBounds(b, { padding: { top: 90, bottom: bottom, left: 40, right: 40 }, maxZoom: 17, duration: 600 });
+  const top = Math.round(Math.min(190, window.innerHeight * 0.26));
+  const bottom = Math.round(Math.min(270, window.innerHeight * 0.36));
+  map.fitBounds(b, { padding: { top: top, bottom: bottom, left: 40, right: 40 }, maxZoom: 17, duration: 600 });
 }
+function setChip(m, r) { $("t-" + m).textContent = r ? fmtDur(r.duration) : "\u2013"; }
 
 function showPlace(p, fly) {
   cand = p; dirOpen = false; routeToken++;
+  setDirUI(false);
   $("pname").textContent = p.name;
   $("psub").textContent = p.sub || "";
   setPin(p.lngLat); setRoute(null);
   if (fly) map.flyTo({ center: p.lngLat, zoom: Math.max(map.getZoom(), 16) });
-  placeEl.style.display = "block"; dirEl.style.display = "none"; sheet.style.display = "block";
+  sheet.style.display = "block";
   // Start working out the driving route now so Directions opens instantly
   if (userPos) getRoute(userPos, p.lngLat, "car").catch(() => {});
 }
 function hideSheet() {
   routeToken++;
-  sheet.style.display = "none"; placeEl.style.display = "none"; dirEl.style.display = "none";
+  setDirUI(false);
+  sheet.style.display = "none";
   dirOpen = false; setPin(null); setRoute(null);
 }
 
-async function computeRoute() {
+// Fill in the travel times for the other modes, one at a time so the free routing servers are not hammered
+async function fillOthers(start, token) {
+  for (const m of MODES) {
+    if (m === mode) continue;
+    await new Promise(r => setTimeout(r, 500));
+    if (token !== routeToken) return;
+    try {
+      const r = await getRoute(start, dest.lngLat, m);
+      if (token === routeToken) setChip(m, r);
+    } catch (e) {}
+  }
+}
+
+async function computeRoute(fresh) {
   if (!dest) return;
   const token = ++routeToken;
+  if (fresh) MODES.forEach(m => setChip(m, null));
   sum.textContent = "Finding route...";
   stepsEl.innerHTML = "";
   $("dstart").style.display = "none";
@@ -926,9 +1004,10 @@ async function computeRoute() {
     curRoute = r;
     setRoute(r.geometry);
     fitCoords(r.geometry.coordinates);
+    setChip(mode, r);
     sum.textContent = fmtDur(r.duration) + " \u00B7 " + fmtDist(r.distance);
     // Navigation follows your GPS, so Start only shows when the route begins at your location
-    $("dstart").style.display = from ? "none" : "block";
+    $("dstart").style.display = from ? "none" : "";
     (r.legs || []).forEach(leg => (leg.steps || []).forEach(s => {
       const info = stepInfo(s);
       const li = document.createElement("li");
@@ -940,6 +1019,7 @@ async function computeRoute() {
       li.onclick = () => { if (s.maneuver && s.maneuver.location) map.flyTo({ center: s.maneuver.location, zoom: 17 }); };
       stepsEl.appendChild(li);
     }));
+    fillOthers(start, token);
   } catch (e) {
     if (token === routeToken) { setRoute(null); sum.textContent = "Couldn't get directions: " + (e.message || "try again"); }
   }
@@ -948,8 +1028,9 @@ async function computeRoute() {
 function openDirections() {
   dest = cand; from = null; dirOpen = true;
   dfrom.value = ""; dto.value = cand.name;
-  placeEl.style.display = "none"; dirEl.style.display = "block";
-  computeRoute();
+  stepsEl.classList.remove("open"); $("dsteps").textContent = "Steps";
+  setDirUI(true);
+  computeRoute(true);
 }
 
 // ----- Turn-by-turn navigation -----
@@ -1097,7 +1178,7 @@ function onPos(pos) {
 
 function startNav() {
   if (!curRoute || from) return;
-  navOn = true; follow = true; muted = muted || false;
+  navOn = true; follow = true;
   buildNav(curRoute);
   document.body.classList.add("nav");
   // iPhones only allow speech after a tap, so unlock it here
@@ -1152,23 +1233,35 @@ map.on("dragstart", e => {
 
 $("pdir").onclick = openDirections;
 $("pclose").onclick = hideSheet;
-$("dclose").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
+$("dback").onclick = () => { if (dest) showPlace(dest, false); else hideSheet(); };
+$("dsteps").onclick = () => {
+  const open = stepsEl.classList.toggle("open");
+  $("dsteps").textContent = open ? "Hide steps" : "Steps";
+};
 [...document.querySelectorAll("#modes button")].forEach(b => {
   b.onclick = () => {
     mode = b.dataset.m;
     [...document.querySelectorAll("#modes button")].forEach(x => x.classList.toggle("on", x === b));
-    computeRoute();
+    computeRoute(false);
   };
 });
 
 attachSearch($("q"), $("sugs"), p => showPlace(p, true));
-attachSearch(dfrom, $("sf"), p => { from = p; computeRoute(); });
-attachSearch(dto, $("st"), p => { dest = p; cand = p; setPin(p.lngLat); computeRoute(); });
+attachSearch(dfrom, $("sf"), p => { from = p; computeRoute(true); });
+attachSearch(dto, $("st"), p => { dest = p; cand = p; setPin(p.lngLat); computeRoute(true); });
 dfrom.addEventListener("input", () => { if (!dfrom.value.trim()) { from = null; $("sf").innerHTML = ""; } });
-dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null; computeRoute(); } });
+dfrom.addEventListener("change", () => { if (!dfrom.value.trim()) { from = null; computeRoute(true); } });
+
+// ----- Menu (three lines, top left) -----
+const menu = $("menu");
+$("menubtn").onclick = e => { e.stopPropagation(); menu.classList.toggle("open"); };
+document.addEventListener("click", e => {
+  if (!menu.contains(e.target) && e.target !== $("menubtn") && !$("menubtn").contains(e.target)) menu.classList.remove("open");
+});
 
 // Tap a place icon or any spot on the map to get a place card
 map.on("click", e => {
+  if (menu.classList.contains("open")) return;
   if (dirOpen || navOn) return;
   let fs = [];
   try {
@@ -1201,7 +1294,7 @@ for (let n = 1; n <= 8; n++) {
   gridEl.appendChild(s);
 }
 
-// ----- Themes -----
+// ----- Themes (listed in the menu) -----
 const bar = $("themes");
 const fx = $("fx");
 function applyThemeUI(key) {
@@ -1223,7 +1316,7 @@ function setTheme(key) {
 Object.entries(THEMES).forEach(([k, t]) => {
   const b = document.createElement("button");
   b.textContent = t.label; b.dataset.k = k;
-  b.onclick = () => setTheme(k);
+  b.onclick = () => { setTheme(k); menu.classList.remove("open"); };
   bar.appendChild(b);
 });
 applyThemeUI("rdr2");
