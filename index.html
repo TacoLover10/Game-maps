@@ -585,7 +585,6 @@ function makeRdr2Style(t) {
         filter: ["==", "class", "wetland"], paint: { "fill-color": t.marsh } },
       { id: "park", type: "fill", source: "omt", "source-layer": "park", paint: { "fill-color": t.park } },
       { id: "water", type: "fill", source: "omt", "source-layer": "water", paint: { "fill-color": t.water } },
-      ring("ring3", 19, 0.3), ring("ring2", 11, 0.45), ring("ring1", 5, 0.6),
       { id: "water-edge", type: "line", source: "omt", "source-layer": "water",
         paint: { "line-color": t.waterEdge, "line-width": 1.4 } },
       { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
