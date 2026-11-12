@@ -46,7 +46,7 @@
   #themes button.on::after { content: "\2713"; float: right; color: #6ee7a0; }
 
   /* Search bar */
-  #top { position: absolute; left: 12px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
+  #top { position: absolute; left: 64px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
   #q {
     width: 100%; box-sizing: border-box; font-size: 16px; padding: 13px 14px; border-radius: 24px;
     border: none; outline: none; background: rgba(20,20,20,.92); color: #fff;
@@ -160,7 +160,6 @@
   body.nav #dtop, body.nav #dsheet, body.nav #grid { display: none !important; }
   body.nav #nav { display: block !important; }
   body.nav #navbar { display: flex !important; }
-  #menubtn, #menu { display: none !important; }
 </style>
 </head>
 <body>
@@ -280,7 +279,7 @@ const ICONS = [
 //   ""    = black circle with white glyph (RDR2)
 //   "-g"  = flat colored glyphs with a thin dark outline, no circle (GTA)
 //   "-f"  = colored circle badge with white glyph (Fortnite, generic map icons)
-const VARIANTS = { "": { s: "", scale: 1.25 }, "-g": { s: "-g", scale: 1.3 }, "-f": { s: "-f", scale: 1.2 } };
+const VARIANTS = { "": { s: "", scale: 1.25 }, "-g": { s: "-g", scale: 1.3 }, "-f": { s: "-f", scale: 1.2 }, "-c": { s: "-c", scale: 1.3 } };
 
 const GTA_COL = {
   saloon: "#e23b3f", food: "#ffffff", cafe: "#ffffff", stable: "#9be8a8", bait: "#7fd0ff",
@@ -296,6 +295,12 @@ const GTA_G = {
   stagecoach: { col: "#ffffff",
     g: `<path d="M9 39l5-13c1-3 3-4 6-4h24c3 0 5 1 6 4l5 13v10h-7v-4H16v4H9z"/><rect x="18" y="27" width="28" height="9" rx="2" fill="BG"/><circle cx="17" cy="41" r="2.500" fill="BG"/><circle cx="47" cy="41" r="2.500" fill="BG"/>` }
 };
+const CYB_COL = {
+  saloon: "#ff2bd6", food: "#fcee0a", cafe: "#fcee0a", stable: "#19e3ff", bait: "#19e3ff",
+  photo: "#ff2bd6", stagecoach: "#19e3ff", tailor: "#ff2bd6", doctor: "#39ff88", hotel: "#b07bff",
+  pawn: "#fcee0a", barber: "#ff2bd6", info: "#19e3ff", post: "#19e3ff", theater: "#b07bff",
+  general: "#39ff88", butcher: "#ff3d5a", trapper: "#fcee0a", gun: "#ff3d5a"
+};
 const FORT_COL = {
   saloon: "#8a4fc0", food: "#f08a24", cafe: "#9c6b3f", stable: "#35557a", bait: "#6b7886",
   photo: "#d9559b", stagecoach: "#35557a", tailor: "#2f80d8", doctor: "#e04848", hotel: "#1fa7a0",
@@ -308,11 +313,14 @@ function iconUri(i, v) {
   let disc = null, fill = "white", ring = "", grp = "";
   if (v.s === "") disc = i.dim ? "#bdbdbd" : "#000000";
   else if (v.s === "-f") { disc = FORT_COL[i.key] || "#2f80d8"; ring = ` stroke="white" stroke-width="3"`; }
-  else {
+  else if (v.s === "-c") {
+    fill = CYB_COL[i.key] || "#19e3ff";
+    grp = ` stroke="#05020d" stroke-width="3" stroke-linejoin="round" paint-order="stroke"`;
+  } else {
     fill = (og && og.col) || GTA_COL[i.key] || "white";
     grp = ` stroke="#141414" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"`;
   }
-  const hole = disc || "#2b2b2b";
+  const hole = disc || (v.s === "-c" ? "#0b0618" : "#2b2b2b");
   const src = og ? og.g : i.g;
   const body = src.split("BG").join(hole).split('stroke="white"').join('stroke="' + fill + '"');
   const bg = disc ? `<circle cx="32" cy="32" r="${ring ? 29 : 31}" fill="${disc}"${ring}/>` : "";
@@ -447,6 +455,18 @@ const GRID_BG =
   "linear-gradient(to bottom, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 100% 12.5%";
 
 const THEMES = {
+  cyber: {
+    label: "Cyberpunk",
+    land: "#0b0618", green: "#0d1230", park: "#0b1a2e", water: "#071a3d",
+    cv: {}, cvs: {}, lu: { industrial: "#140a26", commercial: "#150a2c", residential: "#0e0820", retail: "#1a0a30" },
+    building: "#1b0f38", buildingEdge: "#ff2bd6",
+    roadCase: "#ff2bd6", road: "#19e3ff", major: "#fcee0a", rw: 1.6, glow: 4,
+    text: "#19e3ff", halo: "#05020d", font: "Noto Sans Bold",
+    iconSuffix: "-c", iconSize: 0.7,
+    route: "#fcee0a", routeCase: "#05020d", pin: "#ff2bd6",
+    fx: "repeating-linear-gradient(to bottom, rgba(255,43,214,.05) 0, rgba(255,43,214,.05) 1px, transparent 1px, transparent 3px)," +
+        "radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(60,0,80,.45) 100%)"
+  },
   rdr2: {
     label: "RDR2",
     kind: "rdr2",
@@ -496,7 +516,7 @@ function makeStyle(t) {
       paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building } },
     { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
       filter: classes, layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": t.roadCase, "line-width": wz(1.2 * rw, 4 * rw) } },
+      paint: Object.assign({ "line-color": t.roadCase, "line-width": wz(1.2 * rw, 4 * rw) }, t.glow ? { "line-blur": t.glow, "line-opacity": 0.7 } : {}) },
     { id: "road", type: "line", source: "omt", "source-layer": "transportation",
       filter: classes, layout: { "line-cap": "round", "line-join": "round" },
       paint: {
