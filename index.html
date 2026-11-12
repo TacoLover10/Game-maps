@@ -46,7 +46,7 @@
   #themes button.on::after { content: "\2713"; float: right; color: #6ee7a0; }
 
   /* Search bar */
-  #top { position: absolute; left: 64px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
+  #top { position: absolute; left: 12px; right: 56px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 7; }
   #q {
     width: 100%; box-sizing: border-box; font-size: 16px; padding: 13px 14px; border-radius: 24px;
     border: none; outline: none; background: rgba(20,20,20,.92); color: #fff;
@@ -160,6 +160,7 @@
   body.nav #dtop, body.nav #dsheet, body.nav #grid { display: none !important; }
   body.nav #nav { display: block !important; }
   body.nav #navbar { display: flex !important; }
+  #menubtn, #menu { display: none !important; }
 </style>
 </head>
 <body>
@@ -228,7 +229,9 @@
 </div>
 
 <script>
-window.addEventListener("error", e => { document.getElementById("badge").textContent = "JS error: " + e.message; });
+window.addEventListener("error", e => {
+  document.getElementById("badge").textContent = "JS error: " + e.message + " (" + String(e.filename || "").split("/").pop() + ":" + (e.lineno || "?") + ")";
+});
 
 // ---------- Place icons ----------
 // subs = OpenStreetMap place types that get this icon. dim = grayed out in the RDR2 set.
@@ -299,38 +302,7 @@ const FORT_COL = {
   pawn: "#2f80d8", barber: "#6b7886", info: "#6b7886", post: "#6b7886", theater: "#d9559b",
   general: "#2f80d8", butcher: "#2f80d8", trapper: "#2f80d8", gun: "#2f80d8"
 };
-// ---- GTA icon set (shapes redrawn after the GTA V blip sheet) ----
-const _sal = ICONS.find(i => i.key === "saloon");
-_sal.subs = ["bar", "pub", "biergarten"];                       // nightclubs now get the lips icon
-const _gen = ICONS.find(i => i.key === "general");
-_gen.subs = _gen.subs.filter(s => s !== "bank" && s !== "atm"); // banks get their own $ icon
 
-const LIPS = `<path d="M10 33c5-9 12-10 22-5 10-5 17-4 22 5-5 5-12 7-22 7S15 38 10 33z"/><path d="M12 36c4 8 11 11 20 11s16-3 20-11c-5 3-12 5-20 5s-15-2-20-5z"/>`;
-ICONS.push(
-  { key: "lips", subs: ["nightclub", "stripclub"], g: LIPS },
-  { key: "bank", subs: ["bank", "atm"],
-    g: `<text x="32" y="49" font-size="42" font-weight="bold" text-anchor="middle" font-family="Arial,Helvetica,sans-serif">$</text>` },
-  { key: "fuel", subs: ["fuel"],
-    g: `<path d="M16 18h22l8 8v28H16z"/><path d="M38 18l-5-6h-9l-3 6" fill="none" stroke="white" stroke-width="3.5" stroke-linejoin="round"/><rect x="22" y="27" width="12" height="7" fill="BG"/>` }
-);
-
-Object.assign(GTA_COL, { saloon: "#ffffff", lips: "#e23b3f", bank: "#7bd88f", fuel: "#ffb347",
-                         doctor: "#ffffff", barber: "#ffffff", gun: "#e23b3f" });
-Object.assign(GTA_G, {
-  // martini glass (bars)
-  saloon: { col: "#ffffff", g: `<path d="M10 14h44L34 36v12h11v5H19v-5h11V36z"/>` },
-  // red lips (nightclubs, strip clubs)
-  lips: { col: "#e23b3f", g: LIPS },
-  // solid scissors (barbers and salons)
-  barber: { col: "#ffffff",
-    g: `<path d="M17 12l5-2 18 26-6 4z"/><path d="M47 12l-5-2-18 26 6 4z"/><circle cx="21" cy="46" r="8"/><circle cx="21" cy="46" r="3.5" fill="BG"/><circle cx="43" cy="46" r="8"/><circle cx="43" cy="46" r="3.5" fill="BG"/>` },
-  // bold cross (doctors, hospitals, pharmacies)
-  doctor: { col: "#ffffff", g: `<path d="M24 10h16v14h14v16H40v14H24V40H10V24h14z"/>` },
-  // pistol (gun stores)
-  gun: { col: "#e23b3f",
-    g: `<rect x="8" y="17" width="44" height="12" rx="2"/><path d="M19 27h15l4 23H25z"/><rect x="40" y="29" width="5" height="9" rx="1"/>` }
-});
-Object.assign(FORT_COL, { lips: "#8a4fc0", bank: "#2f9e5f", fuel: "#e5642a" });
 function iconUri(i, v) {
   const og = v.s === "-g" ? GTA_G[i.key] : null;
   let disc = null, fill = "white", ring = "", grp = "";
@@ -475,19 +447,6 @@ const GRID_BG =
   "linear-gradient(to bottom, rgba(255,255,255,.28) 1px, transparent 1px) 0 0 / 100% 12.5%";
 
 const THEMES = {
-  gta: {
-    label: "GTA V",
-    land: "#303030", green: "#363d33", park: "#363d33", water: "#0b0b0b",
-    lu: { residential: "#3b3b3b", commercial: "#474747", retail: "#474747", industrial: "#2a2a2a",
-          hospital: "#444444", school: "#404040", university: "#404040", cemetery: "#343c31",
-          stadium: "#3a4636", pitch: "#343c31", playground: "#343c31", railway: "#2a2a2a" },
-    building: "#4d4d4d", buildingEdge: "#262626",
-    roadCase: "#1c1c1c", road: "#c9c9c9", major: "#f1f1f1", rw: 1.9,
-    text: "#e9e9e9", halo: "#161616", font: "Noto Sans Bold",
-    iconSuffix: "-g", iconSize: 0.7,
-    route: "#d46bd9", routeCase: "#1a1a1a", pin: "#ff4d4d",
-    fx: "none"
-  },
   rdr2: {
     label: "RDR2",
     kind: "rdr2",
@@ -498,30 +457,6 @@ const THEMES = {
     route: "#9b2c2c", routeCase: "#3a2a18", pin: "#9b2c2c",
     fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(70,55,35,.25) 100%)," +
         "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .17  0 0 0 0 .1  0 0 0 .3 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>\")"
-  },
-  fn: {
-    label: "Fortnite",
-    land: "#6db33f", green: "#6db33f", park: "#5fa636", water: "#1d79bd",
-    // Land colors by type (class), and finer shades by subtype (cvs)
-    cv: { grass: "#6db33f", wood: "#4a8f2c", farmland: "#d9b53a", sand: "#eadfb4",
-          rock: "#e8eff3", wetland: "#3e7b48", ice: "#ffffff" },
-    cvs: { scrub: "#7fae4a", meadow: "#82bd47", orchard: "#5f9a38", vineyard: "#6fa84a", heath: "#8aa84f",
-           forest: "#3f8426", bare_rock: "#dde4e8", scree: "#d8dde0", glacier: "#ffffff" },
-    lu: { residential: "#b8c2a6", commercial: "#c9cbc1", retail: "#c9cbc1", industrial: "#9c9d93",
-          hospital: "#c9cbc1", school: "#b8c2a6", university: "#b8c2a6", cemetery: "#5d9a38",
-          stadium: "#76b843", pitch: "#7cbc47", playground: "#7cbc47", railway: "#9c9d93",
-          quarry: "#8f9d78", military: "#7a9a62" },
-    building: "#b4b7aa", buildingEdge: "#7c8073",
-    roadCase: "#8a7a5e", road: "#cdbb97", major: "#dccba6", rw: 0.7, ww: 6,
-    text: "#ffffff", halo: "#16324a", ts: 1.15, font: "Noto Sans Bold",
-    iconSuffix: "-f", iconSize: 0.55,
-    route: "#ffe14d", routeCase: "#16324a", pin: "#ff4fa3",
-    // Terrain look: painted textures, shaded hills, and snowcaps on high peaks
-    tex: true,
-    hill: true, hillShadow: "#1f4d17", hillLight: "#e6f7b8", hillAccent: "#2e6a22",
-    snowEle: 600,   // peaks at or above this height (meters) get a snowcap; lower it for flatter areas
-    grid: true,
-    fx: GRID_BG
   }
 };
 
