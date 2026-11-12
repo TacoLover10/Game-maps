@@ -296,10 +296,10 @@ const GTA_G = {
     g: `<path d="M9 39l5-13c1-3 3-4 6-4h24c3 0 5 1 6 4l5 13v10h-7v-4H16v4H9z"/><rect x="18" y="27" width="28" height="9" rx="2" fill="BG"/><circle cx="17" cy="41" r="2.500" fill="BG"/><circle cx="47" cy="41" r="2.500" fill="BG"/>` }
 };
 const CYB_COL = {
-  saloon: "#ff2bd6", food: "#fcee0a", cafe: "#fcee0a", stable: "#19e3ff", bait: "#19e3ff",
-  photo: "#ff2bd6", stagecoach: "#19e3ff", tailor: "#ff2bd6", doctor: "#39ff88", hotel: "#b07bff",
-  pawn: "#fcee0a", barber: "#ff2bd6", info: "#19e3ff", post: "#19e3ff", theater: "#b07bff",
-  general: "#39ff88", butcher: "#ff3d5a", trapper: "#fcee0a", gun: "#ff3d5a"
+  saloon: "#ff5a5a", food: "#ffd23f", cafe: "#ffd23f", stable: "#56c2ee", bait: "#56c2ee",
+  photo: "#ffffff", stagecoach: "#56c2ee", tailor: "#ff5a5a", doctor: "#ffffff", hotel: "#56c2ee",
+  pawn: "#ffd23f", barber: "#ff5a5a", info: "#56c2ee", post: "#56c2ee", theater: "#ff5a5a",
+  general: "#ffffff", butcher: "#ff5a5a", trapper: "#ffd23f", gun: "#ff5a5a"
 };
 const FORT_COL = {
   saloon: "#8a4fc0", food: "#f08a24", cafe: "#9c6b3f", stable: "#35557a", bait: "#6b7886",
@@ -320,7 +320,7 @@ function iconUri(i, v) {
     fill = (og && og.col) || GTA_COL[i.key] || "white";
     grp = ` stroke="#141414" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"`;
   }
-  const hole = disc || (v.s === "-c" ? "#0b0618" : "#2b2b2b");
+  const hole = disc || (v.s === "-c" ? "#000000" : "#2b2b2b");
   const src = og ? og.g : i.g;
   const body = src.split("BG").join(hole).split('stroke="white"').join('stroke="' + fill + '"');
   const bg = disc ? `<circle cx="32" cy="32" r="${ring ? 29 : 31}" fill="${disc}"${ring}/>` : "";
@@ -457,15 +457,14 @@ const GRID_BG =
 const THEMES = {
   cyber: {
     label: "Cyberpunk",
-    land: "#0b0618", green: "#0d1230", park: "#0b1a2e", water: "#071a3d",
-    cv: {}, cvs: {}, lu: { industrial: "#140a26", commercial: "#150a2c", residential: "#0e0820", retail: "#1a0a30" },
-    building: "#1b0f38", buildingEdge: "#ff2bd6",
-    roadCase: "#ff2bd6", road: "#19e3ff", major: "#fcee0a", rw: 1.6, glow: 4,
-    text: "#19e3ff", halo: "#05020d", font: "Noto Sans Bold",
+    land: "#000000", green: "#020406", park: "#04101a", water: "#06305c",
+    cv: {}, cvs: {}, lu: { industrial: "#0a0204", commercial: "#0c0305", residential: "#050203", retail: "#0c0305" },
+    building: "#a01c1c", buildingEdge: "#d23a3a", buildingOpacity: 0.72,
+    roadCase: "#021423", road: "#2f9fd1", major: "#56c2ee", rw: 1.5,
+    text: "#7fd3f5", halo: "#000000", font: "Noto Sans Bold",
     iconSuffix: "-c", iconSize: 0.7,
-    route: "#fcee0a", routeCase: "#05020d", pin: "#ff2bd6",
-    fx: "repeating-linear-gradient(to bottom, rgba(255,43,214,.05) 0, rgba(255,43,214,.05) 1px, transparent 1px, transparent 3px)," +
-        "radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(60,0,80,.45) 100%)"
+    route: "#ffd23f", routeCase: "#000000", pin: "#d23a3a",
+    fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%)"
   },
   rdr2: {
     label: "RDR2",
@@ -513,7 +512,7 @@ function makeStyle(t) {
     { id: "waterway", type: "line", source: "omt", "source-layer": "waterway",
       paint: { "line-color": t.water, "line-width": wz(0.8, t.ww || 3) } },
     { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
-      paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building } },
+      paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building, "fill-opacity": t.buildingOpacity == null ? 1 : t.buildingOpacity } },
     { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
       filter: classes, layout: { "line-cap": "round", "line-join": "round" },
       paint: Object.assign({ "line-color": t.roadCase, "line-width": wz(1.2 * rw, 4 * rw) }, t.glow ? { "line-blur": t.glow, "line-opacity": 0.7 } : {}) },
