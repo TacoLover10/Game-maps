@@ -360,7 +360,7 @@ function iconUri(i, v) {
   if (v.s === "-c" && CYB_PNG[i.key]) return CYB_PNG[i.key];
   const og = v.s === "-g" ? GTA_G[i.key] : null;
   let disc = null, fill = "white", ring = "", grp = "";
-  if (v.s === "") disc = i.dim ? "#bdbdbd" : "#000000";
+  if (v.s === "") disc = "#000000";
   else if (v.s === "-f") { disc = FORT_COL[i.key] || "#2f80d8"; ring = ` stroke="white" stroke-width="3"`; }
   else if (v.s === "-c") {
     fill = CYB_COL[i.key] || "#19e3ff";
