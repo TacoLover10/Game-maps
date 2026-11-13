@@ -376,6 +376,20 @@ function blob(x, size, px, py, r, rgb, a) {
     x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
   }
 }
+// Cyberpunk buildings: patchwork of red/orange blocks so rooftops look textured
+makeTex("cy-bld", 64, (x, s, r) => {
+  x.fillStyle = "#b8352c"; x.fillRect(0, 0, s, s);
+  const cols = ["#d9503a", "#e8694a", "#8f2224", "#a82a2c", "#c4413a", "#f08060", "#7a1c22"];
+  for (let i = 0; i < 70; i++) {
+    const w = 4 + r() * 18, hh = 4 + r() * 14, px = Math.floor(r() * s), py = Math.floor(r() * s);
+    x.fillStyle = cols[Math.floor(r() * cols.length)];
+    x.globalAlpha = 0.55 + r() * 0.45;
+    for (const dx of [-s, 0, s]) for (const dy of [-s, 0, s]) x.fillRect(px + dx, py + dy, w, hh);
+  }
+  x.globalAlpha = 1;
+  x.fillStyle = "rgba(40,6,20,.35)";
+  for (let i = 0; i < 40; i++) x.fillRect(Math.floor(r() * s), Math.floor(r() * s), 1 + r() * 3, 1 + r() * 3);
+});
 // Big soft light and dark patches across all the land
 makeTex("fn-blotch", 128, (x, s, r) => {
   for (let i = 0; i < 46; i++) {
@@ -457,14 +471,14 @@ const GRID_BG =
 const THEMES = {
   cyber: {
     label: "Cyberpunk",
-    land: "#000000", green: "#020406", park: "#04101a", water: "#06305c",
-    cv: {}, cvs: {}, lu: { industrial: "#0a0204", commercial: "#0c0305", residential: "#050203", retail: "#0c0305" },
-    building: "#a01c1c", buildingEdge: "#d23a3a", buildingOpacity: 0.72,
-    roadCase: "#021423", road: "#2f9fd1", major: "#56c2ee", rw: 1.5,
-    text: "#7fd3f5", halo: "#000000", font: "Noto Sans Bold",
+    land: "#080d2e", green: "#0a1034", park: "#0b1a42", water: "#17318a",
+    cv: {}, cvs: {}, lu: { industrial: "#0b0f36", commercial: "#0d1140", residential: "#090e32", retail: "#0d1140" },
+    building: "#c0392e", buildingEdge: "#ff7a5c", buildingOpacity: 0.5, bldTex: "cy-bld", borders: true,
+    roadCase: "#06103a", road: "#4db3ea", major: "#7fd0f7", rw: 1.5,
+    text: "#9fdcfa", halo: "#050824", font: "Noto Sans Bold",
     iconSuffix: "-c", iconSize: 0.7,
-    route: "#ffd23f", routeCase: "#000000", pin: "#d23a3a",
-    fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%)"
+    route: "#ffd23f", routeCase: "#050824", pin: "#ff5a3c",
+    fx: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,10,.45) 100%)"
   },
   rdr2: {
     label: "RDR2",
@@ -513,6 +527,8 @@ function makeStyle(t) {
       paint: { "line-color": t.water, "line-width": wz(0.8, t.ww || 3) } },
     { id: "building", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
       paint: { "fill-color": t.building, "fill-outline-color": t.buildingEdge || t.building, "fill-opacity": t.buildingOpacity == null ? 1 : t.buildingOpacity } },
+    ...(t.bldTex ? [{ id: "building-tex", type: "fill", source: "omt", "source-layer": "building", minzoom: 14,
+      paint: { "fill-pattern": t.bldTex, "fill-opacity": 0.45 } }] : []),
     { id: "road-case", type: "line", source: "omt", "source-layer": "transportation",
       filter: classes, layout: { "line-cap": "round", "line-join": "round" },
       paint: Object.assign({ "line-color": t.roadCase, "line-width": wz(1.2 * rw, 4 * rw) }, t.glow ? { "line-blur": t.glow, "line-opacity": 0.7 } : {}) },
@@ -522,6 +538,10 @@ function makeStyle(t) {
         "line-color": ["match", ["get", "class"], ["motorway", "trunk", "primary"], t.major, t.road],
         "line-width": wz(0.7 * rw, 3 * rw)
       } },
+    ...(t.borders ? [{ id: "city-border", type: "line", source: "omt", "source-layer": "boundary", minzoom: 8,
+      filter: ["all", [">=", ["get", "admin_level"], 6], ["<=", ["get", "admin_level"], 8]],
+      layout: { "line-join": "round" },
+      paint: { "line-color": "#ffe14d", "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1.2, 14, 2.6], "line-dasharray": [3, 2] } }] : []),
     { id: "road-label", type: "symbol", source: "omt", "source-layer": "transportation_name", minzoom: 13,
       layout: { "symbol-placement": "line", "text-field": ["get", "name"], "text-font": [t.font], "text-size": 11 * ts },
       paint: { "text-color": t.text, "text-halo-color": t.halo, "text-halo-width": 1.5 } },
